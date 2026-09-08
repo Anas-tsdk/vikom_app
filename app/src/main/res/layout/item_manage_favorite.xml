@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:layout_marginBottom="6dp">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingVertical="@dimen/padding_standard"
+        android:paddingHorizontal="@dimen/padding_medium"
+        android:background="@drawable/button_menu_item"
+        android:layout_marginEnd="@dimen/padding_standard">
+
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="8dp">
+
+            <View
+                android:id="@+id/avatar_bg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/avatar_circle_card_favorite"
+                android:importantForAccessibility="no" />
+
+            <ImageView
+                android:id="@+id/avatar_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                android:importantForAccessibility="no" />
+
+            <TextView
+                android:id="@+id/avatar_initial"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:importantForAccessibility="no"
+                tools:text="O" />
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/txt_contact_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="@dimen/text_primary"
+            android:textColor="@color/text_primary"
+            android:ellipsize="end"
+            android:maxLines="1"
+            tools:text="Ola Nordmann (nickname)" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/btn_favorite_toggle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:defaultFocusHighlightEnabled="false"
+            tools:background="@drawable/button_primary"
+            tools:ignore="UnusedAttribute">
+
+            <ImageView
+                android:id="@+id/icon_favorite"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="6dp"
+                android:importantForAccessibility="no"
+                tools:src="@drawable/ic_star_white" />
+
+            <TextView
+                android:id="@+id/txt_favorite_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/text_primary"
+                android:importantForAccessibility="no"
+                tools:text="Favoritt" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_priority_toggle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:defaultFocusHighlightEnabled="false"
+            android:layout_marginStart="@dimen/padding_standard"
+            tools:background="@drawable/button_secondary"
+            tools:ignore="UnusedAttribute">
+
+            <ImageView
+                android:id="@+id/icon_priority"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="6dp"
+                android:importantForAccessibility="no"
+                tools:src="@drawable/ic_priority_white" />
+
+            <TextView
+                android:id="@+id/txt_priority_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/text_primary"
+                android:importantForAccessibility="no"
+                tools:text="Ikke prioritert" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

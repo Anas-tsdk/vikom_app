@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/default_background"
+    android:padding="@dimen/padding_xlarge">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ai_assistant_page"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_heading"
+            android:textStyle="bold"
+            android:accessibilityHeading="true"
+            tools:ignore="UnusedAttribute" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/btn_ai_confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_secondary"
+            android:clickable="true"
+            android:focusable="true"
+            android:minWidth="@dimen/button_width"
+            android:minHeight="@dimen/button_height"
+            android:padding="@dimen/padding_standard"
+            android:text="@string/go_back"
+            android:textSize="@dimen/text_primary"
+            android:textColor="#FFFFFF"
+            android:drawableStart="@drawable/ic_arrow_back"
+            android:drawablePadding="6dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="@dimen/padding_large"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="3"
+            android:src="@drawable/ic_ai_assistant_full"
+            android:scaleType="fitCenter"
+            android:importantForAccessibility="no" />
+
+        <TextView
+            android:id="@+id/txt_ai_greeting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ai_greeting"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_heading"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginTop="@dimen/padding_small"
+            android:layout_marginBottom="4dp"
+            android:accessibilityHeading="true"
+            tools:ignore="UnusedAttribute" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ai_subtitle"
+            android:textSize="@dimen/text_primary"
+            android:textColor="@color/text_secondary"
+            android:gravity="center"
+            android:layout_marginBottom="@dimen/padding_large" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="4"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginEnd="8dp">
+
+                <LinearLayout
+                    android:id="@+id/topic_medicine"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="18dp"
+                    android:paddingVertical="12dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/button_settings_item"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:contentDescription="@string/ai_topic_medicine">
+                    <ImageView
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:src="@drawable/ic_acc_medicine"
+                        android:layout_marginEnd="12dp"
+                        android:importantForAccessibility="no" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ai_topic_medicine"
+                        android:textSize="@dimen/text_primary"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/topic_appointments"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="18dp"
+                    android:paddingVertical="12dp"
+                    android:background="@drawable/button_settings_item"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:contentDescription="@string/ai_topic_appointments">
+                    <ImageView
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:src="@drawable/ic_acc_calendar"
+                        android:layout_marginEnd="12dp"
+                        android:importantForAccessibility="no" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ai_topic_appointments"
+                        android:textSize="@dimen/text_primary"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp">
+
+                <LinearLayout
+                    android:id="@+id/topic_help"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="18dp"
+                    android:paddingVertical="12dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/button_settings_item"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:contentDescription="@string/ai_topic_help">
+                    <ImageView
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:src="@drawable/ic_acc_sos"
+                        android:layout_marginEnd="12dp"
+                        android:importantForAccessibility="no" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ai_topic_help"
+                        android:textSize="@dimen/text_primary"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/topic_daily"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="18dp"
+                    android:paddingVertical="12dp"
+                    android:background="@drawable/button_settings_item"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:contentDescription="@string/ai_topic_daily_tasks">
+                    <ImageView
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:src="@drawable/ic_acc_daily"
+                        android:layout_marginEnd="12dp"
+                        android:importantForAccessibility="no" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ai_topic_daily_tasks"
+                        android:textSize="@dimen/text_primary"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

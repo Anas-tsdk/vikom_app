@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/list_item_height"
+    android:layout_marginBottom="6dp"
+    android:background="@drawable/background_contact_item"
+    android:gravity="center_vertical"
+    android:paddingHorizontal="@dimen/padding_standard"
+    android:orientation="horizontal"
+    android:focusable="true"
+    android:clickable="true"
+    android:defaultFocusHighlightEnabled="false"
+    tools:ignore="UnusedAttribute">
+
+    <TextView
+        android:id="@+id/contact_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/tab_text_size"
+        android:ellipsize="end"
+        android:maxLines="1"
+        tools:text="@string/contact_name_placeholder" />
+
+    <View
+        android:id="@+id/online_indicator"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:layout_marginStart="12dp"
+        android:background="@drawable/online_status_dot"
+        android:visibility="invisible" />
+
+</LinearLayout>

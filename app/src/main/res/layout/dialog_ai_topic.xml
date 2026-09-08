@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/background_dialog"
+    android:paddingStart="@dimen/dialog_padding_horizontal"
+    android:paddingEnd="@dimen/dialog_padding_horizontal"
+    android:paddingTop="@dimen/dialog_padding_top"
+    android:paddingBottom="@dimen/dialog_padding_bottom">
+
+    <TextView
+        android:id="@+id/txt_topic_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textSize="@dimen/dialog_title_size"
+        android:textColor="@color/text_primary"
+        android:textStyle="bold"
+        android:accessibilityHeading="true"
+        tools:ignore="UnusedAttribute" />
+
+    <TextView
+        android:id="@+id/txt_topic_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textSize="@dimen/text_primary"
+        android:textColor="@color/text_primary"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_margin="4dp" />
+
+    <TextView
+        android:id="@+id/txt_topic_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textSize="@dimen/text_primary"
+        android:textColor="@color/text_secondary"
+        android:gravity="center"
+        android:layout_marginBottom="@dimen/padding_medium" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="8dp"
+        tools:ignore="SpeakableTextPresentCheck">
+
+        <LinearLayout
+            android:id="@+id/items_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/btn_topic_close"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_standard"
+        android:layout_marginTop="@dimen/padding_medium"
+        android:text="@string/done"
+        android:textSize="@dimen/text_primary"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:background="@drawable/button_secondary"
+        android:focusable="true"
+        android:clickable="true" />
+
+</LinearLayout>

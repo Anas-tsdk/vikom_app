@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_main">
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/padding_large"
+        android:orientation="vertical"
+        android:background="@drawable/background_dialog"
+        android:paddingVertical="@dimen/padding_large">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="@dimen/padding_large"
+            android:layout_marginBottom="@dimen/padding_xlarge">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/menu_title"
+                android:textSize="@dimen/text_title"
+                android:textColor="@color/text_primary"
+                android:textStyle="bold"
+                android:accessibilityHeading="true"
+                tools:ignore="UnusedAttribute" />
+
+            <TextView
+                android:id="@+id/btn_close_menu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/content_desc_close_menu"
+                android:textSize="@dimen/text_primary"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:background="@drawable/button_secondary"
+                android:paddingHorizontal="@dimen/padding_large"
+                android:paddingVertical="@dimen/padding_small"
+                android:focusable="true"
+                android:clickable="true"
+                android:contentDescription="@string/content_desc_close_menu" />
+
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:id="@+id/menu_item_profile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingVertical="@dimen/padding_small"
+            android:paddingHorizontal="@dimen/padding_large"
+            android:layout_marginHorizontal="@dimen/padding_large"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/button_settings_item"
+            android:focusable="true"
+            android:clickable="true">
+
+            <ImageView
+                android:layout_width="@dimen/header_icon_size"
+                android:layout_height="@dimen/header_icon_size"
+                android:src="@drawable/ic_profile"
+                android:scaleType="fitCenter"
+                android:importantForAccessibility="no" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/padding_standard"
+                android:text="@string/menu_item_profile"
+                android:textColor="@color/text_primary"
+                android:textSize="@dimen/text_primary" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/menu_item_settings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingVertical="@dimen/padding_small"
+            android:paddingHorizontal="@dimen/padding_large"
+            android:layout_marginHorizontal="@dimen/padding_large"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/button_settings_item"
+            android:focusable="true"
+            android:clickable="true">
+
+            <ImageView
+                android:layout_width="@dimen/header_icon_size"
+                android:layout_height="@dimen/header_icon_size"
+                android:src="@drawable/ic_settings"
+                android:scaleType="fitCenter"
+                android:importantForAccessibility="no" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/padding_standard"
+                android:text="@string/settings_title"
+                android:textColor="@color/text_primary"
+                android:textSize="@dimen/text_primary" />
+        </LinearLayout>
+
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginHorizontal="@dimen/padding_large"
+            android:layout_marginVertical="@dimen/padding_standard"
+            android:background="@color/color_divider" />
+
+        <LinearLayout
+            android:id="@+id/menu_item_ai"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="10dp"
+            android:layout_marginHorizontal="@dimen/padding_large"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/button_ai_assistant"
+            android:focusable="true"
+            android:clickable="true">
+
+            <ImageView
+                android:layout_width="@dimen/header_icon_size"
+                android:layout_height="@dimen/header_icon_size"
+                android:importantForAccessibility="no"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_ai_assistant"
+                tools:ignore="ImageContrastCheck" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/ai_assistant_button"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:textSize="@dimen/text_primary" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

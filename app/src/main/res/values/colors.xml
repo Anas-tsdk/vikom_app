@@ -1,0 +1,22 @@
+<resources>
+    <color name="background_gradient_start">#000000</color>
+    <color name="background_gradient_end">#DDDDDD</color>
+    <color name="default_background">#FFFFFF</color> 
+    <color name="speaker_active">#4CAF50</color>
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#616161</color>
+    <color name="text_cancel_button">#424242</color>
+    <color name="color_danger">#B71C1C</color>
+    <color name="text_call_secondary">#E0E0E0</color>
+    <color name="color_mute_active">#f39c12</color>
+    <color name="color_brand_blue">#1E88E5</color>
+    <color name="color_welcome_text">#1565C0</color>
+    <color name="color_splash_text">#0D3B66</color>
+    <color name="color_search_background">#EDEDED</color>
+    <color name="color_hint_text">#9E9E9E</color>
+    <color name="color_divider">#15000000</color>
+    <color name="color_divider_light">#E2E2E2</color>
+    <color name="color_logout_text">#D32F2F</color>
+    <color name="color_search_result_id">#C8E6C9</color>
+    <color name="color_favorite_star">#FFC107</color>
+</resources>

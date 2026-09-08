@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="text_title">44sp</dimen>
+    <dimen name="text_heading">34sp</dimen>
+    <dimen name="text_primary">18sp</dimen>
+    <dimen name="text_caption">14sp</dimen>
+    <dimen name="text_small">12sp</dimen>
+
+    <dimen name="text_caller_name">36sp</dimen>
+    <dimen name="text_call_timer">32sp</dimen>
+    <dimen name="text_call_status">18sp</dimen>
+
+    <dimen name="button_call_action">80dp</dimen>
+    <dimen name="button_in_call">64dp</dimen>
+    <dimen name="button_height">48dp</dimen>
+    <dimen name="button_width">20dp</dimen>
+
+    <dimen name="list_item_height">48dp</dimen>
+    <dimen name="tab_height">44dp</dimen>
+
+    <dimen name="spacing_xsmall">2dp</dimen>
+    <dimen name="spacing_small">4dp</dimen>
+    <dimen name="spacing_medium">6dp</dimen>
+    <dimen name="profile_avatar_size">120dp</dimen>
+    <dimen name="avatar_edit_icon_size">32dp</dimen>
+    <dimen name="search_icon_size">40dp</dimen>
+    <dimen name="search_clear_btn_size">36dp</dimen>
+    <dimen name="search_button_padding_horizontal">20dp</dimen>
+    <dimen name="padding_small">8dp</dimen>
+    <dimen name="padding_medium">12dp</dimen>
+    <dimen name="padding_standard">16dp</dimen>
+    <dimen name="padding_large">24dp</dimen>
+    <dimen name="padding_xlarge">32dp</dimen>
+    <dimen name="dialog_message_margin_bottom">28dp</dimen>
+
+    <dimen name="header_top_margin">40dp</dimen>
+    <dimen name="logo_width">160dp</dimen>
+    <dimen name="logo_height">40dp</dimen>
+    <dimen name="header_icon_size">44dp</dimen>
+    <dimen name="header_welcome_text">15sp</dimen>
+
+    <dimen name="input_max_width">400dp</dimen>
+    <dimen name="dialog_width">300dp</dimen>
+
+    <dimen name="splash_logo_width">360dp</dimen>
+    <dimen name="splash_logo_height">100dp</dimen>
+
+    <dimen name="clock_time_size">18sp</dimen>
+    <dimen name="clock_date_size">12sp</dimen>
+
+    <dimen name="divider_width">400dp</dimen>
+
+    <dimen name="call_avatar_size">140dp</dimen>
+    <dimen name="call_button_padding">20dp</dimen>
+    <dimen name="in_call_button_padding">14dp</dimen>
+    <dimen name="call_button_spacing">32dp</dimen>
+
+    <dimen name="contact_detail_name">34sp</dimen>
+    <dimen name="contact_detail_nickname">22sp</dimen>
+    <dimen name="contact_detail_id">20sp</dimen>
+    <dimen name="contact_detail_status">16sp</dimen>
+    <dimen name="contact_detail_icon">64sp</dimen>
+
+    <dimen name="dialog_title_size">18sp</dimen>
+    <dimen name="dialog_button_height">48dp</dimen>
+    <dimen name="dialog_icon_size">14sp</dimen>
+    <dimen name="dialog_padding_horizontal">24dp</dimen>
+    <dimen name="dialog_padding_top">20dp</dimen>
+    <dimen name="dialog_padding_bottom">24dp</dimen>
+
+    <dimen name="auth_logo_width">280dp</dimen>
+    <dimen name="auth_logo_height">80dp</dimen>
+    <dimen name="auth_padding">40dp</dimen>
+
+    <dimen name="tab_text_size">13sp</dimen>
+
+    <dimen name="search_bar_height">44dp</dimen>
+    <dimen name="search_button_text">14sp</dimen>
+
+    <dimen name="favorite_star_size">32sp</dimen>
+
+    <dimen name="avatar_size_contact_card">50dp</dimen>
+    <dimen name="text_contact_card_name">16sp</dimen>
+    <dimen name="text_contact_card_subtitle">12sp</dimen>
+</resources>

@@ -1,0 +1,18 @@
+<resources>
+
+    <style name="Theme.TV_caller_app" parent="@style/Theme.Leanback">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:colorAccent">@color/color_brand_blue</item>
+        <item name="android:colorPrimary">@color/color_brand_blue</item>
+        <item name="android:colorPrimaryDark">@color/color_welcome_text</item>
+        <item name="android:windowBackground">@color/default_background</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.Default</item>
+    </style>
+
+    <style name="TextAppearance.App.Default" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+</resources>

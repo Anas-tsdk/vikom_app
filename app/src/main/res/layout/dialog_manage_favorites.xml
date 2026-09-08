@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/background_dialog"
+    android:paddingTop="@dimen/dialog_padding_top"
+    android:paddingBottom="@dimen/dialog_padding_bottom"
+    android:paddingHorizontal="@dimen/dialog_padding_horizontal">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/manage_favorites_title"
+        android:textSize="@dimen/dialog_title_size"
+        android:textColor="@color/text_primary"
+        android:textStyle="bold"
+        android:layout_marginBottom="@dimen/padding_small"
+        android:accessibilityHeading="true"
+        tools:ignore="UnusedAttribute" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/manage_favorites_subtitle"
+        android:textSize="@dimen/text_caption"
+        android:textColor="@color/text_secondary"
+        android:layout_marginBottom="@dimen/padding_medium" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_contacts"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="@dimen/padding_large"
+        tools:listitem="@layout/item_manage_favorite" />
+
+    <TextView
+        android:id="@+id/btn_done"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_standard"
+        android:text="@string/done"
+        android:textSize="@dimen/text_primary"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:background="@drawable/button_primary"
+        android:focusable="true"
+        android:clickable="true"
+        tools:ignore="UnusedAttribute" />
+
+</LinearLayout>

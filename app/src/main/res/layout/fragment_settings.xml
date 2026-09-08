@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:background="@color/default_background"
+    android:padding="@dimen/padding_xlarge">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_title"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_heading"
+            android:textStyle="bold"
+            android:accessibilityHeading="true"
+            android:importantForAccessibility="yes"
+            tools:ignore="UnusedAttribute"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/btn_go_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_secondary"
+            android:clickable="true"
+            android:focusable="true"
+            android:minWidth="@dimen/button_width"
+            android:minHeight="@dimen/button_height"
+            android:padding="@dimen/padding_standard"
+            android:text="@string/go_back"
+            android:textSize="@dimen/text_primary"
+            android:textColor="#FFFFFF"
+            android:drawableStart="@drawable/ic_arrow_back"
+            android:drawablePadding="6dp" />
+
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="@dimen/padding_xlarge"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <LinearLayout
+                android:id="@+id/setting_language"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/list_item_height"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="18dp"
+                android:paddingVertical="12dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/button_settings_item"
+                android:focusable="true"
+                android:clickable="true">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/settings_language"
+                    android:textColor="@color/text_primary"
+                    android:textSize="@dimen/text_primary" />
+
+                <TextView
+                    android:id="@+id/txt_language_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="@dimen/text_primary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/setting_ringtone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/list_item_height"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="18dp"
+                android:paddingVertical="12dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/button_settings_item"
+                android:focusable="true"
+                android:clickable="true">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/settings_ringtone"
+                    android:textColor="@color/text_primary"
+                    android:textSize="@dimen/text_primary" />
+
+                <TextView
+                    android:id="@+id/txt_ringtone_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="@dimen/text_primary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/setting_auto_answer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/list_item_height"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="18dp"
+                android:paddingVertical="12dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/button_settings_item"
+                android:focusable="true"
+                android:clickable="true">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/settings_auto_answer"
+                    android:textColor="@color/text_primary"
+                    android:textSize="@dimen/text_primary" />
+
+                <TextView
+                    android:id="@+id/txt_auto_answer_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="@dimen/text_primary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="8dp">
+
+                <LinearLayout
+                    android:id="@+id/setting_account_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/list_item_height"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="18dp"
+                    android:paddingVertical="12dp"
+                    android:background="@drawable/button_settings_item"
+                    android:focusable="true"
+                    android:clickable="true">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/settings_account_info"
+                        android:textColor="@color/text_primary"
+                        android:textSize="@dimen/text_primary" />
+
+                    <TextView
+                        android:id="@+id/txt_account_chevron"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/accordion_arrow"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="@dimen/text_primary"
+                        android:importantForAccessibility="no" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/account_info_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp"
+                    android:paddingTop="10dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/button_settings_item"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/txt_session_info"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="@dimen/text_primary" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/btn_logout_settings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/list_item_height"
+        android:text="@string/logout"
+        android:textSize="@dimen/text_primary"
+        android:textColor="#FFFFFF"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="18dp"
+        android:paddingVertical="12dp"
+        android:background="@drawable/button_settings_item_danger"
+        android:focusable="true"
+        android:clickable="true" />
+
+</LinearLayout>

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/default_background"
+    android:padding="@dimen/padding_xlarge">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/manage_favorites_title"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_heading"
+            android:textStyle="bold"
+            android:accessibilityHeading="true"
+            android:importantForAccessibility="yes"
+            tools:ignore="UnusedAttribute" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/btn_go_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_secondary"
+            android:clickable="true"
+            android:focusable="true"
+            android:defaultFocusHighlightEnabled="false"
+            android:minWidth="@dimen/button_width"
+            android:minHeight="@dimen/button_height"
+            android:padding="@dimen/padding_standard"
+            android:text="@string/go_back"
+            android:textSize="@dimen/text_primary"
+            android:textColor="#FFFFFF"
+            android:drawableStart="@drawable/ic_arrow_back"
+            android:drawablePadding="6dp"
+            tools:ignore="UnusedAttribute" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="@dimen/padding_xlarge"
+        android:layout_marginBottom="@dimen/padding_large">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/manage_favorites_description"
+            android:textSize="@dimen/text_caption"
+            android:textColor="@color/text_secondary"
+            android:lineHeight="22sp"
+            android:layout_marginEnd="100dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/button_menu_item"
+            android:paddingHorizontal="@dimen/padding_standard"
+            android:paddingVertical="@dimen/padding_small"
+            android:importantForAccessibility="noHideDescendants">
+
+            <TextView
+                android:id="@+id/txt_favorites_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_caption"
+                android:textColor="#06195C"
+                android:drawableStart="@drawable/ic_star_filled"
+                android:drawablePadding="6dp"
+                android:gravity="center_vertical"
+                android:accessibilityLiveRegion="polite"
+                tools:text="Favoritter: 3" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="16dp"
+                android:background="#06195C"
+                android:layout_marginHorizontal="@dimen/padding_standard"
+                android:alpha="0.3" />
+
+            <TextView
+                android:id="@+id/txt_priority_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_caption"
+                android:textColor="#06195C"
+                android:drawableStart="@drawable/ic_pin"
+                android:drawablePadding="6dp"
+                android:gravity="center_vertical"
+                android:accessibilityLiveRegion="polite"
+                tools:text="Topp prioritet: 2 / 4" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_contacts"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="48dp"
+            android:descendantFocusability="afterDescendants" />
+
+        <LinearLayout
+            android:id="@+id/scroll_indicator"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_gravity="bottom"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:background="@drawable/scroll_fade_bottom"
+            android:visibility="gone"
+            android:clickable="false"
+            android:focusable="false">
+
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/ic_arrow_down"
+                android:importantForAccessibility="no" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/scroll_for_more"
+                android:textSize="@dimen/text_caption"
+                android:textColor="@color/text_secondary"
+                android:textStyle="bold"
+                android:importantForAccessibility="no" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+</LinearLayout>

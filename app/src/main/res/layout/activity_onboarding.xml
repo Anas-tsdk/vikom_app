@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/default_background">
+
+    <LinearLayout
+        android:id="@+id/onboarding_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="48dp">
+
+        <ImageView
+            android:id="@+id/onboarding_icon"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:scaleType="fitCenter"
+            android:importantForAccessibility="no" />
+
+        <TextView
+            android:id="@+id/onboarding_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/onboarding_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textSize="18sp"
+            android:textColor="@color/text_secondary"
+            android:gravity="center"
+            android:lineHeight="28sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="@dimen/padding_xlarge"
+        android:paddingVertical="@dimen/padding_large">
+
+        <TextView
+            android:id="@+id/btn_onboarding_prev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_secondary"
+            android:clickable="true"
+            android:focusable="true"
+            android:defaultFocusHighlightEnabled="false"
+            android:minWidth="@dimen/button_width"
+            android:minHeight="@dimen/button_height"
+            android:padding="@dimen/padding_standard"
+            android:text="@string/onboarding_prev"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/text_primary"
+            android:visibility="invisible"
+            android:nextFocusRight="@id/btn_onboarding_next" />
+
+        <LinearLayout
+            android:id="@+id/onboarding_dots"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/btn_onboarding_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_primary"
+            android:clickable="true"
+            android:focusable="true"
+            android:defaultFocusHighlightEnabled="false"
+            android:minWidth="@dimen/button_width"
+            android:minHeight="@dimen/button_height"
+            android:padding="@dimen/padding_standard"
+            android:text="@string/onboarding_next"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/text_primary"
+            android:nextFocusLeft="@id/btn_onboarding_prev" />
+
+    </LinearLayout>
+
+</LinearLayout>

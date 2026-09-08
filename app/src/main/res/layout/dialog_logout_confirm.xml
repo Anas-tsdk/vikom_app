@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:minWidth="@dimen/dialog_width"
+    android:orientation="vertical"
+    android:background="@drawable/background_dialog"
+    android:gravity="center_horizontal"
+    android:paddingStart="@dimen/dialog_padding_horizontal"
+    android:paddingEnd="@dimen/dialog_padding_horizontal"
+    android:paddingTop="@dimen/dialog_padding_top"
+    android:paddingBottom="@dimen/dialog_padding_bottom"
+    android:contentDescription="@string/logout_confirm_title"
+    tools:ignore="UnusedAttribute">
+
+    <TextView
+        android:id="@+id/dialog_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/logout_warning_icon"
+        android:textSize="@dimen/dialog_icon_size"
+        android:layout_marginBottom="@dimen/padding_medium"
+        android:importantForAccessibility="no"
+        tools:ignore="TextContrastCheck" />
+
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/logout_confirm_title"
+        android:textSize="@dimen/dialog_title_size"
+        android:textColor="@color/text_primary"
+        android:textStyle="bold"
+        android:layout_marginBottom="@dimen/padding_small"
+        android:accessibilityHeading="true"
+        tools:ignore="UnusedAttribute" />
+
+    <TextView
+        android:id="@+id/dialog_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/logout_confirm_message"
+        android:textSize="@dimen/text_primary"
+        android:textColor="@color/text_secondary"
+        android:layout_marginBottom="@dimen/dialog_message_margin_bottom" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/btn_confirm"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/dialog_button_height"
+            android:layout_weight="1"
+            android:text="@string/confirm"
+            android:textSize="@dimen/text_primary"
+            android:textColor="@android:color/white"
+            android:gravity="center"
+            android:background="@drawable/button_dialog_confirm"
+            android:focusable="true"
+            android:clickable="true"
+            android:defaultFocusHighlightEnabled="false"
+            android:layout_marginEnd="@dimen/padding_medium"
+            tools:ignore="UnusedAttribute" />
+
+        <TextView
+            android:id="@+id/btn_cancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/dialog_button_height"
+            android:layout_weight="1"
+            android:text="@string/cancel"
+            android:textSize="@dimen/text_primary"
+            android:textColor="@color/text_cancel_button"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:background="@drawable/button_dialog_cancel"
+            android:focusable="true"
+            android:clickable="true"
+            android:defaultFocusHighlightEnabled="false"
+            android:layout_marginStart="@dimen/padding_medium"
+            tools:ignore="UnusedAttribute" />
+
+    </LinearLayout>
+
+</LinearLayout>

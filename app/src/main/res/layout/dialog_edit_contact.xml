@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/background_dialog"
+    android:paddingStart="@dimen/dialog_padding_horizontal"
+    android:paddingEnd="@dimen/dialog_padding_horizontal"
+    android:paddingTop="@dimen/dialog_padding_top"
+    android:paddingBottom="@dimen/dialog_padding_bottom">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txt_edit_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textSize="@dimen/dialog_title_size"
+                android:textColor="@color/text_primary"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginBottom="@dimen/padding_large"
+                android:accessibilityHeading="true"
+                tools:ignore="UnusedAttribute" />
+
+
+            <TextView
+                android:id="@+id/label_nickname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/nickname_label"
+                android:textColor="@color/text_primary"
+                android:textSize="@dimen/text_primary"
+                android:layout_marginBottom="6dp"
+                android:labelFor="@id/edit_nickname" />
+
+            <EditText
+                android:id="@+id/edit_nickname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:autofillHints="name"
+                android:hint="Skriv inn kallenavn for denne kontakten"
+                android:textSize="@dimen/text_primary"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
+                android:background="@drawable/button_settings_item"
+                android:paddingHorizontal="18dp"
+                android:paddingVertical="12dp"
+                android:layout_marginBottom="8dp"
+                tools:ignore="TextFieldTooWide" />
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:baselineAligned="false"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:id="@+id/btn_dialog_favorite"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:minHeight="@dimen/button_height"
+                    android:padding="@dimen/padding_standard"
+                    android:textColor="#FFFFFF"
+                    android:textSize="@dimen/text_primary" />
+
+                <TextView
+                    android:id="@+id/btn_dialog_priority"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="@dimen/button_height"
+                    android:layout_marginStart="8dp"
+                    android:gravity="center"
+                    android:padding="@dimen/padding_standard"
+                    android:textSize="@dimen/text_primary"
+                    android:textColor="#FFFFFF"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/item_edit_delete"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/button_height"
+                android:text="@string/remove_contact"
+                android:textSize="@dimen/text_primary"
+                android:textColor="#FFFFFF"
+                android:gravity="center"
+                android:padding="@dimen/padding_standard"
+                android:background="@drawable/button_settings_item_danger"
+                android:focusable="true"
+                android:clickable="true" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/btn_edit_done"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_standard"
+        android:layout_marginTop="@dimen/padding_large"
+        android:text="@string/done"
+        android:textSize="@dimen/text_primary"
+        android:textColor="#FFFFFF"
+        android:gravity="center"
+        android:background="@drawable/button_secondary"
+        android:focusable="true"
+        android:clickable="true"
+        tools:ignore="UnusedAttribute" />
+
+</LinearLayout>

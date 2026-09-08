@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/background_main">
+
+    <ImageView
+        android:id="@+id/splash_logo"
+        android:layout_width="@dimen/splash_logo_width"
+        android:layout_height="@dimen/splash_logo_height"
+        android:src="@drawable/tv_caller_logo"
+        android:scaleType="fitCenter"
+        android:layout_marginBottom="@dimen/padding_xlarge"
+        android:contentDescription="@string/content_desc_logo" />
+
+    <TextView
+        android:id="@+id/splash_welcome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/splash_welcome"
+        android:textSize="@dimen/text_title"
+        android:textColor="@color/color_splash_text"
+        android:textStyle="bold" />
+
+</LinearLayout>

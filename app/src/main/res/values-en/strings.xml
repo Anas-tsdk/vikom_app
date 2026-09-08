@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Vikom</string>
+
+    <string name="login_title">ViKom</string>
+    <string name="email_hint">Enter email</string>
+    <string name="password_hint">Enter password</string>
+    <string name="password_label">Password</string>
+    <string name="login_button">Log in</string>
+    <string name="register_button">Register</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="reset_password_dialog_title">Reset Password</string>
+    <string name="reset_password_dialog_message">Enter your email address and we\'ll send you a link to reset your password.</string>
+    <string name="reset_password_send">Send</string>
+    <string name="reset_password_cancel">Cancel</string>
+    <string name="reset_password_success">Code sent! Check your inbox.</string>
+    <string name="reset_password_error">Could not send code. Please try again.</string>
+
+    <string name="screen_reset_otp">Reset Password – Code</string>
+    <string name="reset_otp_title">Check your email</string>
+    <string name="reset_otp_instruction">We\'ve sent a code to %s.\nEnter the code below.</string>
+    <string name="reset_otp_code_label">Code from email</string>
+    <string name="reset_otp_code_hint">Enter code</string>
+    <string name="reset_otp_continue">Continue</string>
+
+    <string name="screen_new_password">New Password</string>
+    <string name="new_password_title">Choose a new password</string>
+    <string name="new_password_label">New Password</string>
+    <string name="new_password_hint">Enter new password</string>
+    <string name="new_password_confirm_label">Confirm Password</string>
+    <string name="new_password_confirm_hint">Repeat new password</string>
+    <string name="new_password_save">Save</string>
+    <string name="new_password_success">Password updated! Please log in with your new password.</string>
+    <string name="new_password_mismatch">Passwords do not match</string>
+    <string name="email_label_login">Email</string>
+    <string name="splash_welcome">Welcome ViKom user!</string>
+
+    <string name="back_to_login_button">Return to login</string>
+    <string name="register_title">Create account</string>
+    <string name="username_hint">Choose a username</string>
+    <string name="username_label">Username</string>
+    <string name="first_name_hint">First name</string>
+    <string name="first_name_label">First name</string>
+    <string name="last_name_hint">Last name</string>
+    <string name="last_name_label">Last name</string>
+    <string name="full_name_hint">Full name</string>
+    <string name="phone_number_label">Optional</string>
+    <string name="confirm_password_hint">Confirm password</string>
+    <string name="confirm_password_label">Confirm password</string>
+    <string name="back_to_login">Back</string>
+
+    <string name="tab_quick_dial">Quick Dial</string>
+    <string name="tab_dial_pad">ID Search</string>
+    <string name="tab_contacts">Contacts</string>
+    <string name="welcome_user">Welcome User!</string>
+    <string name="status_logged_in">Logged in</string>
+    <string name="no_contacts_online">No contacts are currently online</string>
+    <string name="section_favorites">Favorites</string>
+
+    <string name="enter_number">Enter number</string>
+    <string name="call_button">Call</string>
+
+    <string name="add_new_contact">Add new contact</string>
+    <string name="page_indicator">Page %1$d of %2$d</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
+
+    <string name="go_back">Back</string>
+    <string name="call">Call</string>
+    <string name="video_call">Video Call</string>
+    <string name="remove_contact">Remove</string>
+    <string name="add_to_contacts">Add to contacts</string>
+
+    <string name="status_online">● Online</string>
+    <string name="status_offline">○ Offline</string>
+    <string name="status_checking">Checking status…</string>
+    <string name="status_in_call">In a call</string>
+    <string name="status_busy">Busy</string>
+
+    <string name="permission_microphone_required">Microphone permission is required to make calls</string>
+    <string name="permission_denied_message">Cannot make calls without required permissions. Please grant permissions in Settings.</string>
+
+    <string name="logout">Log out</string>
+
+    <string name="name_label">Name</string>
+    <string name="name_hint">Enter contact name</string>
+    <string name="user_id_label">Contact ID</string>
+    <string name="user_id_hint">Enter 9-digit contact ID</string>
+    <string name="email_label">Email</string>
+    <string name="contact_email_label">Email (Optional)</string>
+    <string name="contact_email_hint">Enter email address</string>
+    <string name="address_label">Address (Optional)</string>
+    <string name="contact_address_hint">Enter address</string>
+    <string name="notes_label">Notes (Optional)</string>
+    <string name="contact_notes_hint">Add notes about this contact</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="edit_contact">Edit contact</string>
+
+    <string name="phone_label">Phone number</string>
+    <string name="phone_number_hint">Enter phone number</string>
+
+    <string name="unknown_caller">Unknown caller</string>
+    <string name="unknown_contact">Unknown contact</string>
+    <string name="status_ringing">Ringing…</string>
+    <string name="incoming_video_call">Incoming Video Call</string>
+    <string name="outgoing_video_call">Video Call…</string>
+    <string name="outgoing_audio_call">Audio Call…</string>
+    <string name="status_connecting">Connecting…</string>
+    <string name="status_connected">Connected</string>
+    <string name="call_ended">Call ended</string>
+    <string name="call_failed">Call failed</string>
+    <string name="call_rejected">Call rejected</string>
+    <string name="call_cancelled">Call cancelled</string>
+    <string name="call_service_unavailable">Call service unavailable</string>
+    <string name="incoming_call">Incoming call</string>
+    <string name="outgoing_call">Outgoing call</string>
+    <string name="call_with">Call with %s</string>
+    <string name="muted">Microphone off</string>
+    <string name="speaker_on">Speaker ON</string>
+    <string name="creating_account">Creating account…</string>
+    <string name="login_success">Login successful!</string>
+    <string name="account_created_message">Account created! Confirmation email sent to:\n%s\n\nPlease confirm your email before logging in.</string>
+    <string name="logged_out_success">Logged out</string>
+    <string name="logout_failed">Logout failed: %s</string>
+    <string name="logout_error">Logout error: %s</string>
+    <string name="error_prefix">Error: %s</string>
+    <string name="no_answer">No answer</string>
+    <string name="contact_added">Contact added!</string>
+    <string name="profile_coming_soon">Profile – coming soon</string>
+    <string name="settings_coming_soon">Settings – coming soon</string>
+    <string name="notification_active_calls">Active calls</string>
+    <string name="notification_for_active_calls">Notification for active calls</string>
+    <string name="calling_contact">Calling %1$s (ID: %2$s)…</string>
+    <string name="contact_deleted">Contact deleted!</string>
+    <string name="added_to_contacts">Added to contacts!</string>
+    <string name="remove_contact_hint">Do you want to remove this contact?</string>
+    <string name="delete_contact_title">Delete contact</string>
+    <string name="delete_contact_message">Are you sure you want to delete %s? This action cannot be undone.</string>
+    <string name="delete">Delete</string>
+    <string name="add_contact_title">Add contact</string>
+    <string name="add_contact_message">Do you want to add %s to your contacts?</string>
+    <string name="add">Add</string>
+    <string name="cannot_call_offline">Cannot call: Contact is offline</string>
+    <string name="calling_contact_offline">Contact appears to be offline. Calling anyway…</string>
+
+    <string name="confirm">confirm</string>
+    <string name="profile_title">My Profile</string>
+    <string name="change_photo">Change photo</string>
+    <string name="contact_id_label">Contact ID</string>
+    <string name="choose_avatar">Choose avatar</string>
+    <string name="avatar_blue">blue avatar</string>
+    <string name="avatar_green">green avatar</string>
+    <string name="avatar_red">red avatar</string>
+    <string name="avatar_purple">purple avatar</string>
+    <string name="avatar_orange">orange avatar</string>
+    <string name="avatar_teal">teal avatar</string>
+    <string name="remove_photo">remove photo</string>
+    <string name="username_taken">Username is already in use</string>
+    <string name="upload_photo">Upload photo</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_ringtone">Ringtone</string>
+    <string name="settings_auto_answer">Auto-answer</string>
+    <string name="settings_vibration">Vibration</string>
+    <string name="settings_account_info">account information</string>
+    <string name="setting_on">On</string>
+    <string name="setting_off">Off</string>
+
+    <string name="notification_ready_for_calls">Ready for calls</string>
+    <string name="notification_incoming_call_from">Incoming call from %s</string>
+    <string name="remove_favorite">Remove as favorite</string>
+    <string name="content_desc_toggle_favorite">Toggle favorite</string>
+    <string name="contact_nickname_hint">Enter Nickname</string>
+    <string name="section_favorites_header">Favorite</string>
+    <string name="btn_manage_favorites_label">Manage Favorite</string>
+    <string name="manage_favorites">Manage favorite</string>
+    <string name="btn_manage_priorities_label">Priorities</string>
+    <string name="manage_priorities">Manage priorities</string>
+    <string name="manage_favorites_title">Select favorite</string>
+    <string name="manage_favorites_subtitle">Press a contact to add or remove them from the favorites list. Favorites are always shown in quick dial.</string>
+    <string name="update_favorite_failed">Could not update the favorites</string>
+    <string name="no_contacts_found">no contacts</string>
+    <string name="favorite">favorite</string>
+    <string name="not_favorite">not favorite</string>
+    <string name="done">done</string>
+    <string name="ai_assistant_page">ViKom Help</string>
+    <string name="ai_assistant_button">Get Help</string>
+    <string name="section_your_contacts">Your contacts</string>
+    <string name="section_other_users">other users</string>
+    <string name="email_verification_title">validate your email</string>
+    <string name="email_verification_message">confirmation link sent</string>
+    <string name="resend_email_button">resend</string>
+    <string name="content_desc_contact_avatar">contact photo</string>
+    <string name="content_desc_caller_avatar">caller avatar</string>
+    <string name="content_desc_mute">mute</string>
+    <string name="content_desc_end_call">end call</string>
+    <string name="content_desc_reject_call">reject call</string>
+    <string name="content_desc_answer_call">answer call</string>
+    <string name="content_desc_speaker">speaker</string>
+    <string name="content_desc_camera_off">Turn on camera</string>
+    <string name="content_desc_profile_photo">profile picture</string>
+    <string name="menu_title">menu</string>
+    <string name="menu_item_profile">profile</string>
+    <string name="content_desc_close_menu">close menu</string>
+    <string name="content_desc_profile_icon">profile icon</string>
+    <string name="content_desc_settings_icon">settings icon</string>
+    <string name="content_desc_logout_icon">logout icon</string>
+    <string name="content_desc_menu">menu</string>
+    <string name="content_desc_clock">clock</string>
+    <string name="logout_confirm_title">logout confirmation</string>
+    <string name="logout_confirm_message">are you sure you want to log out?</string>
+
+    <string name="screen_login">Log in</string>
+    <string name="screen_register">Register</string>
+    <string name="screen_email_verification">Email verification</string>
+    <string name="screen_home">Home</string>
+    <string name="screen_contacts">Contacts</string>
+    <string name="screen_contact_detail">Contact details</string>
+    <string name="screen_profile">My profile</string>
+    <string name="screen_settings">Settings</string>
+    <string name="screen_ai">AI assistant</string>
+    <string name="screen_menu">Menu</string>
+    <string name="screen_incoming_call">Incoming call</string>
+    <string name="screen_in_call">Active call</string>
+    <string name="screen_outgoing_call">Outgoing call</string>
+    <string name="contact_actions_group">Contact actions</string>
+    <string name="call_controls_group">Call controls</string>
+
+    <string name="view_messages">Messages</string>
+    <string name="edit_contact_title">Editing %s</string>
+    <string name="messages_dialog_title">From %s</string>
+    <string name="nickname_label">Nickname</string>
+    <string name="remove">Remove</string>
+
+    <string name="ai_greeting">Hi, %s!</string>
+    <string name="ai_subtitle">How can I help you?</string>
+    <string name="ai_topic_medicine">Medicine</string>
+    <string name="ai_topic_help">Emergency Call</string>
+    <string name="ai_topic_appointments">Appointments</string>
+    <string name="ai_topic_daily_tasks">Daily tasks</string>
+    <string name="ai_choose_prompt">Just choose what you need help with 👆</string>
+    <string name="add_favorite">Add to favorites</string>
+    <string name="content_desc_camera_on">Turn off camera</string>
+</resources>

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/default_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="@dimen/auth_padding">
+
+        <ImageView
+            android:id="@+id/login_logo"
+            android:layout_width="@dimen/auth_logo_width"
+            android:layout_height="@dimen/auth_logo_height"
+            android:src="@drawable/tv_caller_logo"
+            android:scaleType="fitCenter"
+            android:layout_marginBottom="@dimen/auth_padding"
+            android:contentDescription="@string/content_desc_logo"
+            android:accessibilityHeading="true"
+            tools:ignore="UnusedAttribute" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:minWidth="@dimen/input_max_width"
+            android:maxWidth="@dimen/input_max_width"
+            android:layout_marginBottom="@dimen/padding_standard">
+
+            <TextView
+                android:id="@+id/label_email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/email_label_login"
+                android:textSize="@dimen/text_primary"
+                android:textColor="@android:color/black"
+                android:textStyle="bold"
+                android:layout_marginBottom="6dp"
+                android:labelFor="@id/email_input" />
+
+            <EditText
+                android:id="@+id/email_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="emailAddress"
+                android:background="@drawable/button_input_field"
+                android:hint="@string/email_hint"
+                android:inputType="textEmailAddress"
+                android:padding="@dimen/padding_standard"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
+                android:textSize="@dimen/text_primary"
+                android:importantForAutofill="yes"
+                tools:ignore="VisualLintTextFieldSize,LabelFor" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:minWidth="@dimen/input_max_width"
+            android:maxWidth="@dimen/input_max_width"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/label_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/password_label"
+                android:textSize="@dimen/text_primary"
+                android:textColor="@android:color/black"
+                android:textStyle="bold"
+                android:layout_marginBottom="6dp"
+                android:labelFor="@id/password_input" />
+
+            <EditText
+                android:id="@+id/password_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="password"
+                android:background="@drawable/button_input_field"
+                android:hint="@string/password_hint"
+                android:inputType="textPassword"
+                android:padding="@dimen/padding_standard"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
+                android:textSize="@dimen/text_primary"
+                android:importantForAutofill="yes"
+                tools:ignore="VisualLintTextFieldSize,LabelFor" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/forgot_password_link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="@dimen/input_max_width"
+            android:maxWidth="@dimen/input_max_width"
+            android:minHeight="48dp"
+            android:text="@string/forgot_password"
+            android:textSize="@dimen/header_welcome_text"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="@dimen/padding_large"
+            android:paddingBottom="4dp"
+            android:focusable="true"
+            android:focusableInTouchMode="false"
+            android:clickable="true"
+            android:defaultFocusHighlightEnabled="false"
+            tools:ignore="UnusedAttribute" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:minWidth="@dimen/input_max_width"
+            android:maxWidth="@dimen/input_max_width">
+
+            <Button
+                android:id="@+id/login_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:stateListAnimator="@null"
+                android:background="@drawable/button_primary"
+                android:text="@string/login_button"
+                android:textColor="@android:color/white"
+                android:textAllCaps="false"
+                android:textSize="@dimen/text_primary"
+                android:padding="@dimen/padding_standard"
+                android:defaultFocusHighlightEnabled="false"
+                tools:ignore="ButtonStyle,UnusedAttribute" />
+
+            <Button
+                android:id="@+id/register_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:stateListAnimator="@null"
+                android:text="@string/register_button"
+                android:textSize="@dimen/text_primary"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:padding="@dimen/padding_standard"
+                android:background="@drawable/button_secondary"
+                android:defaultFocusHighlightEnabled="false"
+                tools:ignore="ButtonStyle,UnusedAttribute" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="4dp"
+    android:layout_marginBottom="@dimen/spacing_small">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_medium"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/txt_favorites_label"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Favoritter"
+            android:textSize="@dimen/text_caption"
+            android:textColor="#06195C"
+            android:drawableStart="@drawable/ic_star_filled"
+            android:drawablePadding="4dp"
+            android:gravity="center_vertical"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:importantForAccessibility="no"
+            tools:ignore="HardcodedText" />
+
+        <LinearLayout
+            android:id="@+id/btn_manage_favorites"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_favorite"
+            android:clickable="true"
+            android:contentDescription="@string/manage_favorites"
+            android:defaultFocusHighlightEnabled="false"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/search_button_padding_horizontal"
+            android:paddingVertical="@dimen/padding_small">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_edit_pencil" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="@string/btn_manage_favorites_label"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/search_button_text" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</LinearLayout>
