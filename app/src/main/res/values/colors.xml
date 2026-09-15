@@ -1,6 +1,6 @@
 <resources>
-    <color name="background_gradient_start">#000000</color>
-    <color name="background_gradient_end">#DDDDDD</color>
+    <color name="background_gradient_start">#1E214C</color>
+    <color name="background_gradient_end">#7C56E3</color>
     <color name="default_background">#FFFFFF</color> 
     <color name="speaker_active">#4CAF50</color>
     <color name="text_primary">#212121</color>
@@ -9,9 +9,9 @@
     <color name="color_danger">#B71C1C</color>
     <color name="text_call_secondary">#E0E0E0</color>
     <color name="color_mute_active">#f39c12</color>
-    <color name="color_brand_blue">#1E88E5</color>
-    <color name="color_welcome_text">#1565C0</color>
-    <color name="color_splash_text">#0D3B66</color>
+    <color name="color_brand_blue">#7C56E3</color>
+    <color name="color_welcome_text">#7C56E3</color>
+    <color name="color_splash_text">#1E214C</color>
     <color name="color_search_background">#EDEDED</color>
     <color name="color_hint_text">#9E9E9E</color>
     <color name="color_divider">#15000000</color>
@@ -19,4 +19,35 @@
     <color name="color_logout_text">#D32F2F</color>
     <color name="color_search_result_id">#C8E6C9</color>
     <color name="color_favorite_star">#FFC107</color>
+
+    <!-- ViKom web-app brand tokens, shared by healthcare and calling screens. -->
+    <color name="vk_primary">#7C56E3</color>
+    <color name="vk_primary_pressed">#6B47C9</color>
+    <color name="vk_primary_focus">#9679E8</color>
+    <color name="vk_primary_surface">#F1ECFC</color>
+    <color name="vk_secondary">#1E214C</color>
+    <color name="vk_secondary_pressed">#151742</color>
+    <color name="vk_secondary_focus">#3A3E70</color>
+    <color name="vk_info">#1932B2</color>
+    <color name="vk_success">#28A745</color>
+    <color name="vk_success_soft">#5DC36E</color>
+    <color name="vk_warning">#FFC107</color>
+    <color name="vk_danger">#DC3545</color>
+    <color name="vk_danger_pressed">#C82333</color>
+    <color name="vk_danger_focus">#E4606D</color>
+    <color name="vk_white">#FFFFFF</color>
+    <color name="vk_gray_100">#F8F9FA</color>
+    <color name="vk_gray_200">#E9ECEF</color>
+    <color name="vk_gray_300">#DEE2E6</color>
+    <color name="vk_gray_400">#CED4DA</color>
+    <color name="vk_gray_500">#ADB5BD</color>
+    <color name="vk_gray_600">#6C757D</color>
+    <color name="vk_gray_700">#495057</color>
+    <color name="vk_gray_800">#343A40</color>
+    <color name="vk_gray_900">#111215</color>
+    <color name="vk_text_primary">@color/vk_gray_900</color>
+    <color name="vk_text_muted">@color/vk_gray_600</color>
+    <color name="vk_border">@color/vk_gray_300</color>
+    <color name="vk_surface">@color/vk_white</color>
+    <color name="vk_surface_muted">@color/vk_gray_100</color>
 </resources>

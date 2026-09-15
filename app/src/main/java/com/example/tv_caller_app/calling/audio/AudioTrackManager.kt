@@ -84,6 +84,12 @@ class AudioTrackManager {
         }
     }
 
+    fun onRemoteAudioTrack(track: AudioTrack) {
+        remoteAudioTrack = track
+        remoteAudioTrack?.setEnabled(true)
+        Log.d(TAG, "Remote Unified Plan audio track enabled")
+    }
+
     fun onRemoveStream() {
         remoteAudioTrack = null
     }

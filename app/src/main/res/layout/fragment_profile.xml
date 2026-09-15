@@ -38,10 +38,10 @@
             android:minWidth="@dimen/button_width"
             android:minHeight="@dimen/button_height"
             android:padding="@dimen/padding_standard"
-            android:text="@string/go_back"
+            android:text="@string/home_title"
             android:textSize="@dimen/text_primary"
             android:textColor="#FFFFFF"
-            android:drawableStart="@drawable/ic_arrow_back"
+            android:drawableStart="@drawable/ic_home"
             android:drawablePadding="6dp" />
 
     </LinearLayout>

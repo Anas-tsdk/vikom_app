@@ -21,7 +21,7 @@
             android:layout_weight="1"
             android:text="Favoritter"
             android:textSize="@dimen/text_caption"
-            android:textColor="#06195C"
+            android:textColor="@color/vk_secondary"
             android:drawableStart="@drawable/ic_star_filled"
             android:drawablePadding="4dp"
             android:gravity="center_vertical"

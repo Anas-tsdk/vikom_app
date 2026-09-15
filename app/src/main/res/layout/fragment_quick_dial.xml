@@ -9,6 +9,8 @@
     android:paddingTop="@dimen/spacing_small"
     android:paddingBottom="@dimen/spacing_xsmall">
 
+    <include layout="@layout/view_screen_header" />
+
     <LinearLayout
         android:id="@+id/tab_container"
         android:layout_width="match_parent"

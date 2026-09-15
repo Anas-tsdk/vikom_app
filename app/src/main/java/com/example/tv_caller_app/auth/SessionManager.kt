@@ -40,6 +40,7 @@ class SessionManager private constructor(context: Context) {
         private const val KEY_EMAIL_CONFIRMED = "email_confirmed"
         private const val KEY_SESSION_TIMESTAMP = "session_timestamp"
         private const val KEY_USERNAME = "username"
+        private const val KEY_DAILY_CHECK_IN_REQUIRED = "daily_check_in_required"
     }
 
     init {
@@ -207,6 +208,18 @@ class SessionManager private constructor(context: Context) {
             null
         }
     }
+
+    fun saveDailyCheckInRequired(required: Boolean) {
+        encryptedPrefs.edit { putBoolean(KEY_DAILY_CHECK_IN_REQUIRED, required) }
+    }
+
+    /** Null until the backend has determined whether this account is a web patient. */
+    fun dailyCheckInRequired(): Boolean? =
+        if (encryptedPrefs.contains(KEY_DAILY_CHECK_IN_REQUIRED)) {
+            encryptedPrefs.getBoolean(KEY_DAILY_CHECK_IN_REQUIRED, false)
+        } else {
+            null
+        }
 
     fun getSessionInfo(): Map<String, String> {
         return mapOf(

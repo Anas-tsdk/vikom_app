@@ -324,19 +324,19 @@ class ContactDetailFragment : Fragment() {
         fun applyPrioStyle(isPrio: Boolean, isFull: Boolean) {
             when {
                 isPrio -> {
-                    btnDialogPriority.text = "Prioritert"
+                    btnDialogPriority.setText(R.string.priority_selected)
                     btnDialogPriority.setBackgroundResource(R.drawable.button_primary)
                     btnDialogPriority.isEnabled = true
                     btnDialogPriority.alpha = 1f
                 }
                 isFull -> {
-                    btnDialogPriority.text = "Ingen plass"
+                    btnDialogPriority.setText(R.string.priority_no_space)
                     btnDialogPriority.setBackgroundResource(R.drawable.button_secondary)
                     btnDialogPriority.isEnabled = false
                     btnDialogPriority.alpha = 0.4f
                 }
                 else -> {
-                    btnDialogPriority.text = "Ikke prioritert"
+                    btnDialogPriority.setText(R.string.priority_not_selected)
                     btnDialogPriority.setBackgroundResource(R.drawable.button_secondary)
                     btnDialogPriority.isEnabled = true
                     btnDialogPriority.alpha = 1f

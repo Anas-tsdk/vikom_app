@@ -2,10 +2,15 @@ package com.example.tv_caller_app.data.repository
 
 import android.util.Log
 import com.example.tv_caller_app.data.datasource.CallDataSource
+import com.example.tv_caller_app.domain.IncomingCallOffer
 import com.example.tv_caller_app.domain.PendingCallData
+import com.example.tv_caller_app.domain.AppointmentEvent
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.security.MessageDigest
 
 typealias CallConnectionState = CallDataSource.CallConnectionState
 
@@ -19,12 +24,20 @@ class CallRepository(
 
     companion object {
         private const val TAG = "CallRepository"
+        private const val OFFER_DEDUPE_WINDOW_MS = 2 * 60 * 1000L
+        private const val MAX_REMEMBERED_OFFERS = 32
     }
 
 
     private val _pendingIncomingCall = MutableStateFlow<PendingCallData?>(null)
 
     val pendingIncomingCall: StateFlow<PendingCallData?> = _pendingIncomingCall.asStateFlow()
+
+    private val _appointmentEvents = MutableSharedFlow<AppointmentEvent>(extraBufferCapacity = 8)
+    val appointmentEvents: SharedFlow<AppointmentEvent> = _appointmentEvents
+
+    private val incomingOfferLock = Any()
+    private val recentlyHandledOffers = LinkedHashMap<String, Long>()
 
     fun clearPendingIncomingCall() {
         _pendingIncomingCall.value = null
@@ -37,13 +50,16 @@ class CallRepository(
 
 
 
-    var onIncomingCall: ((callerId: String, callerUserId: String, callerName: String, callerUsername: String, offer: String, contactId: Int?, nickname: String?, avatarUrl: String?, mediaType: String) -> Unit)? = null
-    var onCallAnswered: ((answer: String) -> Unit)? = null
-    var onNewIceCandidate: ((candidate: String, sdpMid: String?, sdpMLineIndex: Int?) -> Unit)? = null
-    var onCallRejected: ((reason: String) -> Unit)? = null
-    var onCallEnded: ((reason: String, duration: Long) -> Unit)? = null
-    var onRemoteCameraStateChanged: ((enabled: Boolean) -> Unit)? = null
-    var onCallAnsweredElsewhere: (() -> Unit)? = null
+    var onIncomingCall: ((callId: String, callerId: String, callerUserId: String, callerName: String, callerUsername: String, offer: String, contactId: Int?, nickname: String?, avatarUrl: String?, mediaType: String) -> Unit)? = null
+    var onCallAnswered: ((callId: String, answer: String) -> Unit)? = null
+    var onNewIceCandidate: ((callId: String, candidate: String, sdpMid: String?, sdpMLineIndex: Int?) -> Unit)? = null
+    var onCallRejected: ((callId: String, reason: String) -> Unit)? = null
+    var onCallEnded: ((callId: String, reason: String, duration: Long) -> Unit)? = null
+    var onRemoteCameraStateChanged: ((callId: String, enabled: Boolean) -> Unit)? = null
+    var onVideoUpgradeRequested: ((callId: String) -> Unit)? = null
+    var onVideoUpgradeResponded: ((callId: String, accepted: Boolean) -> Unit)? = null
+    var onMissedCall: ((callId: String, callerName: String, mediaType: String, timestamp: Long) -> Unit)? = null
+    var onCallAnsweredElsewhere: ((callId: String) -> Unit)? = null
     var onSignalingError: ((message: String, exception: Throwable?) -> Unit)? = null
 
 
@@ -98,40 +114,135 @@ class CallRepository(
 
     suspend fun initializeSignaling() = callDataSource.initializeSignaling()
 
+    suspend fun refreshTurnConfiguration(): Boolean =
+        callDataSource.refreshTurnConfiguration()
+
     suspend fun observeSignalingEvents() {
-        callDataSource.onSignalingIncomingCall = { callerId, callerUserId, callerName, callerUsername, offer, mediaType ->
-            val info = resolveCallerInfo(callerId, callerUserId, callerName)
-            val resolvedCallerId = info.contactId?.toString() ?: callerId
-            _pendingIncomingCall.value = PendingCallData(
-                callerId = resolvedCallerId,
-                callerName = info.displayName,
-                nickname = info.nickname,
-                avatarUrl = info.avatarUrl,
-                mediaType = mediaType
-            )
-            onIncomingCall?.invoke(
-                resolvedCallerId,
-                callerUserId,
-                info.displayName,
-                callerUsername,
-                offer,
-                info.contactId,
-                info.nickname,
-                info.avatarUrl,
-                mediaType
+        callDataSource.onSignalingIncomingCall = { callId, callerId, callerUserId, callerName, callerUsername, offer, mediaType ->
+            handleIncomingOffer(
+                callId = callId,
+                offer = IncomingCallOffer(
+                    callerId = callerId,
+                    callerUserId = callerUserId,
+                    callerName = callerName,
+                    callerUsername = callerUsername,
+                    offerSdp = offer,
+                    contactId = callerId.toIntOrNull(),
+                    mediaType = mediaType
+                ),
+                source = "realtime"
             )
         }
-        callDataSource.onSignalingCallAnswered = { answer -> onCallAnswered?.invoke(answer) }
-        callDataSource.onSignalingNewIceCandidate = { candidate, sdpMid, sdpMLineIndex ->
-            onNewIceCandidate?.invoke(candidate, sdpMid, sdpMLineIndex)
+        callDataSource.onSignalingCallAnswered = { callId, answer -> onCallAnswered?.invoke(callId, answer) }
+        callDataSource.onSignalingNewIceCandidate = { callId, candidate, sdpMid, sdpMLineIndex ->
+            onNewIceCandidate?.invoke(callId, candidate, sdpMid, sdpMLineIndex)
         }
-        callDataSource.onSignalingCallRejected = { reason -> onCallRejected?.invoke(reason) }
-        callDataSource.onSignalingCallEnded = { reason, duration -> onCallEnded?.invoke(reason, duration) }
-        callDataSource.onSignalingRemoteCameraStateChanged = { enabled -> onRemoteCameraStateChanged?.invoke(enabled) }
-        callDataSource.onSignalingCallAnsweredElsewhere = { onCallAnsweredElsewhere?.invoke() }
+        callDataSource.onSignalingCallRejected = { callId, reason -> onCallRejected?.invoke(callId, reason) }
+        callDataSource.onSignalingCallEnded = { callId, reason, duration -> onCallEnded?.invoke(callId, reason, duration) }
+        callDataSource.onSignalingRemoteCameraStateChanged = { callId, enabled -> onRemoteCameraStateChanged?.invoke(callId, enabled) }
+        callDataSource.onSignalingVideoUpgradeRequested = { callId -> onVideoUpgradeRequested?.invoke(callId) }
+        callDataSource.onSignalingVideoUpgradeResponded = { callId, accepted -> onVideoUpgradeResponded?.invoke(callId, accepted) }
+        callDataSource.onSignalingMissedCall = { callId, callerName, mediaType, timestamp ->
+            onMissedCall?.invoke(callId, callerName, mediaType, timestamp)
+        }
+        callDataSource.onSignalingCallAnsweredElsewhere = { callId -> onCallAnsweredElsewhere?.invoke(callId) }
         callDataSource.onSignalingError = { message, exception -> onSignalingError?.invoke(message, exception) }
+        callDataSource.onAppointmentChanged = { appointment ->
+            _appointmentEvents.tryEmit(appointment)
+        }
 
         callDataSource.observeSignalingEvents()
+    }
+
+    /**
+     * Injects a data-only push offer into the same path used by realtime.
+     * Returns false when the offer was a duplicate or the call stack was not
+     * ready. The dedupe window prevents realtime + FCM delivery of one offer
+     * from being interpreted as a second, busy call.
+     */
+    suspend fun injectIncomingCallOffer(offer: IncomingCallOffer): Boolean {
+        try {
+            callDataSource.recheckMicrophoneAvailability()
+        } catch (error: Exception) {
+            Log.w(TAG, "Unable to refresh microphone availability for push call", error)
+        }
+        return handleIncomingOffer(offer, source = "fcm", callId = offer.callId)
+    }
+
+    private suspend fun handleIncomingOffer(offer: IncomingCallOffer, source: String, callId: String = ""): Boolean {
+        if (onIncomingCall == null) {
+            Log.w(TAG, "Ignoring $source incoming offer because call callbacks are not ready")
+            return false
+        }
+
+        val fingerprint = offerFingerprint(offer.callerUserId, offer.offerSdp)
+        if (!claimIncomingOffer(fingerprint)) {
+            Log.i(TAG, "Ignoring duplicate incoming offer delivered by $source")
+            return false
+        }
+
+        return try {
+            val info = resolveCallerInfo(
+                callerId = offer.contactId?.toString() ?: offer.callerId,
+                callerUserId = offer.callerUserId,
+                callerName = offer.callerName
+            )
+            val resolvedCallerId = info.contactId?.toString()
+                ?: offer.contactId?.toString()
+                ?: offer.callerId
+            val displayName = info.displayName.ifBlank { offer.callerName }
+            val nickname = info.nickname ?: offer.nickname
+            val avatarUrl = info.avatarUrl ?: offer.avatarUrl
+            val normalizedMediaType = if (offer.mediaType.equals("video", ignoreCase = true)) {
+                "video"
+            } else {
+                "audio"
+            }
+
+            _pendingIncomingCall.value = PendingCallData(
+                callerId = resolvedCallerId,
+                callerName = displayName,
+                nickname = nickname,
+                avatarUrl = avatarUrl,
+                mediaType = normalizedMediaType
+            )
+            onIncomingCall?.invoke(
+                callId,
+                resolvedCallerId,
+                offer.callerUserId,
+                displayName,
+                offer.callerUsername,
+                offer.offerSdp,
+                info.contactId ?: offer.contactId,
+                nickname,
+                avatarUrl,
+                normalizedMediaType
+            )
+            Log.i(TAG, "Accepted incoming $normalizedMediaType offer from $source")
+            true
+        } catch (error: Exception) {
+            synchronized(incomingOfferLock) { recentlyHandledOffers.remove(fingerprint) }
+            Log.e(TAG, "Failed to inject incoming offer from $source", error)
+            false
+        }
+    }
+
+    private fun claimIncomingOffer(fingerprint: String): Boolean = synchronized(incomingOfferLock) {
+        val now = System.currentTimeMillis()
+        recentlyHandledOffers.entries.removeAll { now - it.value > OFFER_DEDUPE_WINDOW_MS }
+        if (recentlyHandledOffers.containsKey(fingerprint)) return@synchronized false
+        recentlyHandledOffers[fingerprint] = now
+        while (recentlyHandledOffers.size > MAX_REMEMBERED_OFFERS) {
+            val oldest = recentlyHandledOffers.entries.firstOrNull()?.key ?: break
+            recentlyHandledOffers.remove(oldest)
+        }
+        true
+    }
+
+    private fun offerFingerprint(callerUserId: String, offerSdp: String): String {
+        val bytes = MessageDigest.getInstance("SHA-256")
+            .digest("$callerUserId\n${offerSdp.trim()}".toByteArray(Charsets.UTF_8))
+        return bytes.joinToString(separator = "") { byte -> "%02x".format(byte) }
     }
 
     private data class CallerInfo(val contactId: Int?, val displayName: String, val nickname: String?, val avatarUrl: String?)
@@ -176,9 +287,13 @@ class CallRepository(
     }
 
     fun hasCamera(): Boolean = callDataSource.hasCamera()
+    fun hasMultipleCameras(): Boolean = callDataSource.hasMultipleCameras()
+    fun recheckMicrophoneAvailability() = callDataSource.recheckMicrophoneAvailability()
     fun setVideoEnabled(enabled: Boolean) = callDataSource.setVideoEnabled(enabled)
     fun startVideoCapture() = callDataSource.startVideoCapture()
     fun stopVideoCapture() = callDataSource.stopVideoCapture()
+    fun switchCamera(onComplete: (success: Boolean, frontFacing: Boolean) -> Unit) =
+        callDataSource.switchCamera(onComplete)
     fun mute() = callDataSource.mute()
     fun unmute() = callDataSource.unmute()
     fun enableSpeaker() = callDataSource.enableSpeaker()
@@ -217,26 +332,32 @@ class CallRepository(
 
 
 
-    suspend fun sendCallOffer(targetUserId: String, offer: String, mediaType: String = "audio") =
-        callDataSource.sendCallOffer(targetUserId, currentUserName, currentUserName, offer, mediaType)
+    suspend fun sendCallOffer(callId: String, targetUserId: String, offer: String, mediaType: String = "audio") =
+        callDataSource.sendCallOffer(callId, targetUserId, currentUserName, currentUserName, offer, mediaType)
 
-    suspend fun sendCallAnswer(callerId: String, answer: String) =
-        callDataSource.sendCallAnswer(callerId, currentUserName, answer)
+    suspend fun sendCallAnswer(callId: String, callerId: String, answer: String) =
+        callDataSource.sendCallAnswer(callId, callerId, currentUserName, answer)
 
-    suspend fun notifyAnsweredElsewhere() =
-        callDataSource.notifyAnsweredElsewhere(currentUserId)
+    suspend fun notifyAnsweredElsewhere(callId: String) =
+        callDataSource.notifyAnsweredElsewhere(callId, currentUserId)
 
-    suspend fun rejectCall(callerId: String, reason: String) =
-        callDataSource.rejectCall(callerId, reason)
+    suspend fun rejectCall(callId: String, callerId: String, reason: String) =
+        callDataSource.rejectCall(callId, callerId, reason)
 
-    suspend fun endCall(otherUserId: String, reason: String, duration: Long) =
-        callDataSource.endCall(otherUserId, reason, duration)
+    suspend fun endCall(callId: String, otherUserId: String, reason: String, duration: Long) =
+        callDataSource.endCall(callId, otherUserId, reason, duration)
 
-    suspend fun sendIceCandidate(targetUserId: String, candidate: String, sdpMid: String?, sdpMLineIndex: Int?) =
-        callDataSource.sendIceCandidate(targetUserId, candidate, sdpMid, sdpMLineIndex)
+    suspend fun sendIceCandidate(callId: String, targetUserId: String, candidate: String, sdpMid: String?, sdpMLineIndex: Int?) =
+        callDataSource.sendIceCandidate(callId, targetUserId, candidate, sdpMid, sdpMLineIndex)
 
-    suspend fun sendCameraState(targetUserId: String, enabled: Boolean) =
-        callDataSource.sendCameraState(targetUserId, enabled)
+    suspend fun sendCameraState(callId: String, targetUserId: String, enabled: Boolean) =
+        callDataSource.sendCameraState(callId, targetUserId, enabled)
+
+    suspend fun requestVideoUpgrade(callId: String, targetUserId: String) =
+        callDataSource.requestVideoUpgrade(callId, targetUserId)
+
+    suspend fun respondToVideoUpgrade(callId: String, targetUserId: String, accepted: Boolean) =
+        callDataSource.respondToVideoUpgrade(callId, targetUserId, accepted)
 
     suspend fun cleanupSignaling() = callDataSource.cleanupSignaling()
 
@@ -269,13 +390,13 @@ class CallRepository(
 
 
 
-    fun startCallAudio() = callDataSource.startCallAudio()
+    fun startCallAudio(preferSpeaker: Boolean = false) = callDataSource.startCallAudio(preferSpeaker)
     fun stopCallAudio() = callDataSource.stopCallAudio()
 
 
 
-    fun startCallNotification(contactName: String, isIncoming: Boolean) =
-        callDataSource.startCallNotification(contactName, isIncoming)
+    fun startCallNotification(contactName: String, isIncoming: Boolean, mediaType: String) =
+        callDataSource.startCallNotification(contactName, isIncoming, mediaType)
 
     fun stopCallNotification() = callDataSource.stopCallNotification()
 

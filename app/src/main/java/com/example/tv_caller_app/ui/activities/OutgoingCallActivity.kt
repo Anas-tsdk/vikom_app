@@ -36,9 +36,10 @@ class OutgoingCallActivity : FragmentActivity() {
     private var contactAvatarUrl: String? = null
     private var callId: String? = null
     private var callType: String = "audio"
+    /** True after the connected screen takes ownership of call audio. */
+    private var audioHandedOffToInCall = false
 
     private val timeoutHandler = Handler(Looper.getMainLooper())
-    private val callTimeoutMs = CallViewModel.RINGING_TIMEOUT_MS
 
     companion object {
         private const val TAG = "OutgoingCallActivity"
@@ -105,7 +106,6 @@ class OutgoingCallActivity : FragmentActivity() {
         setupButtonListeners()
         observeViewModel()
         startRingbackTone()
-        startTimeoutTimer()
 
         Log.d(TAG, "OutgoingCallActivity created for contact: $contactName")
     }
@@ -169,16 +169,19 @@ class OutgoingCallActivity : FragmentActivity() {
             Log.d(TAG, "Call state changed: $state")
 
             when (state) {
+                is CallViewModel.CallState.Connecting,
                 is CallViewModel.CallState.Connected -> {
-                    Log.i(TAG, "Call answered - transitioning to InCallActivity")
+                    Log.i(TAG, "Call answered - opening the in-call screen")
 
                     timeoutHandler.removeCallbacksAndMessages(null)
-                    stopRingbackTone()
+                    // Do not reset MODE_IN_COMMUNICATION here or from
+                    // onDestroy(): InCallActivity is about to own that route.
+                    audioHandedOffToInCall = true
 
                     val intent = InCallActivity.createIntent(
                         context = this,
-                        contactId = state.remoteUserId,
-                        contactName = state.remoteUserName,
+                        contactId = callViewModel.getRemoteUserId().orEmpty(),
+                        contactName = callViewModel.getRemoteUserName() ?: getString(R.string.unknown_contact),
                         callId = callId ?: "",
                         isIncoming = false,
                         nickname = contactNickname,
@@ -238,28 +241,12 @@ class OutgoingCallActivity : FragmentActivity() {
         Log.d(TAG, "Ringback tone stopped, audio mode reset")
     }
 
-    private fun startTimeoutTimer() {
-        timeoutHandler.postDelayed({
-            Log.w(TAG, "Call timeout - no answer after ${callTimeoutMs / 1000} seconds")
-            onCallTimeout()
-        }, callTimeoutMs)
-    }
-
-    private fun onCallTimeout() {
-        txtCallStatus.text = getString(R.string.no_answer)
-
-        stopRingbackTone()
-        callViewModel.endCall()
-
-        timeoutHandler.postDelayed({
-            finish()
-        }, 2000)
-    }
-
     override fun onDestroy() {
         super.onDestroy()
 
-        stopRingbackTone()
+        if (!audioHandedOffToInCall) {
+            stopRingbackTone()
+        }
         timeoutHandler.removeCallbacksAndMessages(null)
 
         Log.d(TAG, "OutgoingCallActivity destroyed")

@@ -105,9 +105,9 @@ class ContactDetailViewModel(application: Application) : AndroidViewModel(applic
 
         val required = mutableListOf<String>()
         required.add(Manifest.permission.RECORD_AUDIO)
-        if (PermissionHelper.hasCameraHardware(ctx)) required.add(Manifest.permission.CAMERA)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) required.add(Manifest.permission.POST_NOTIFICATIONS)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) required.add(Manifest.permission.BLUETOOTH_CONNECT)
+        if (withVideo && PermissionHelper.hasCameraHardware(ctx)) {
+            required.add(Manifest.permission.CAMERA)
+        }
 
         val missing = required.filter {
             ContextCompat.checkSelfPermission(ctx, it) != PackageManager.PERMISSION_GRANTED

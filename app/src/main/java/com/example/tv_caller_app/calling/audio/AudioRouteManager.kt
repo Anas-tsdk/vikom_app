@@ -17,22 +17,11 @@ class AudioRouteManager(context: Context) {
     var isSpeakerOn = false
         private set
 
-    fun startCallAudio() {
+    fun startCallAudio(preferSpeaker: Boolean = false) {
         try {
             audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val earpiece = audioManager.availableCommunicationDevices.firstOrNull {
-                    it.type == AudioDeviceInfo.TYPE_BUILTIN_EARPIECE
-                }
-                if (earpiece != null) {
-                    audioManager.setCommunicationDevice(earpiece)
-                } else {
-                    audioManager.clearCommunicationDevice()
-                }
-            }
-            @Suppress("DEPRECATION")
-            audioManager.isSpeakerphoneOn = false
-            Log.d(TAG, "Call audio started: MODE_IN_COMMUNICATION, speaker OFF")
+            if (preferSpeaker) enableSpeaker() else disableSpeaker()
+            Log.d(TAG, "Call audio started: MODE_IN_COMMUNICATION, speaker=$preferSpeaker")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to start call audio", e)
         }
@@ -77,10 +66,16 @@ class AudioRouteManager(context: Context) {
             Log.i(TAG, "Speaker enabled (legacy API)")
         }
         val voiceStream = AudioManager.STREAM_VOICE_CALL
-        savedVolume = audioManager.getStreamVolume(voiceStream)
+        if (savedVolume < 0) savedVolume = audioManager.getStreamVolume(voiceStream)
         val maxVolume = audioManager.getStreamMaxVolume(voiceStream)
-        audioManager.setStreamVolume(voiceStream, maxVolume, 0)
-        Log.i(TAG, "Speaker volume boosted: $savedVolume -> $maxVolume")
+        // A high but not clipped default is clearer than forcing every device to
+        // 100%. The physical volume keys remain available during the call.
+        val clearVoiceVolume = (maxVolume * 0.85f).toInt().coerceAtLeast(1)
+        val currentVolume = audioManager.getStreamVolume(voiceStream)
+        if (currentVolume < clearVoiceVolume) {
+            audioManager.setStreamVolume(voiceStream, clearVoiceVolume, 0)
+        }
+        Log.i(TAG, "Speaker volume prepared: $currentVolume -> ${audioManager.getStreamVolume(voiceStream)}")
         isSpeakerOn = true
     }
 

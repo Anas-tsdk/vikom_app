@@ -7,10 +7,28 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+// Firebase is optional for local development. Keeping the Google Services
+// plugin conditional means a checkout without the project-specific
+// google-services.json still builds; realtime signaling continues to work.
+val googleServicesFile = file("google-services.json")
+if (googleServicesFile.exists()) {
+    apply(plugin = "com.google.gms.google-services")
+} else {
+    logger.warn("google-services.json not found in app/; Firebase push is disabled for this build.")
+}
+
 val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
     localProperties.load(FileInputStream(localPropertiesFile))
+}
+
+// Machine/demo-specific values override the normal Android local.properties.
+// Keeping this as an explicit second load prevents a stale LAN address in
+// local.properties from silently winning over the public demo endpoint.
+val localOverridesFile = rootProject.file("local.properties.local")
+if (localOverridesFile.exists()) {
+    localProperties.load(FileInputStream(localOverridesFile))
 }
 
 android {
@@ -27,9 +45,12 @@ android {
 
         val supabaseUrl = localProperties.getProperty("supabase.url") ?: ""
         val supabaseKey = localProperties.getProperty("supabase.key") ?: ""
+        val backendBaseUrl = localProperties.getProperty("backend.base.url") ?: ""
 
         buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
         buildConfigField("String", "SUPABASE_KEY", "\"$supabaseKey\"")
+        buildConfigField("String", "BACKEND_BASE_URL", "\"$backendBaseUrl\"")
+        buildConfigField("boolean", "FIREBASE_CONFIGURED", googleServicesFile.exists().toString())
 
     }
 
@@ -79,6 +100,9 @@ dependencies {
     implementation(libs.supabase.realtime.kt)
     implementation(libs.supabase.storage.kt)
     implementation(libs.supabase.functions.kt)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging.ktx)
 
     implementation(libs.ktor.client.android)
     implementation(libs.ktor.client.core)

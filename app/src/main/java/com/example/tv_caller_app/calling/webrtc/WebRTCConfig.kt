@@ -4,6 +4,19 @@ import org.webrtc.PeerConnection
 
 object WebRTCConfig {
 
+    data class ManagedIceServer(
+        val urls: List<String>,
+        val username: String? = null,
+        val credential: String? = null
+    )
+
+    @Volatile private var managedIceServers: List<ManagedIceServer> = emptyList()
+
+    fun updateManagedIceServers(servers: List<ManagedIceServer>) {
+        managedIceServers = servers.filter { it.urls.isNotEmpty() }
+        android.util.Log.i("WebRTCConfig", "Loaded ${managedIceServers.size} managed ICE server groups")
+    }
+
     val stunServers = listOf(
         "stun:stun.l.google.com:19302",
         "stun:stun1.l.google.com:19302",
@@ -27,25 +40,40 @@ object WebRTCConfig {
     fun createRTCConfiguration(): PeerConnection.RTCConfiguration {
         val iceServers = mutableListOf<PeerConnection.IceServer>()
 
-        stunServers.forEach { url ->
+        val managed = managedIceServers
+        if (managed.isNotEmpty()) {
+            managed.forEach { server ->
+                server.urls.forEach { url ->
+                    val builder = PeerConnection.IceServer.builder(url)
+                    server.username?.takeIf(String::isNotBlank)?.let(builder::setUsername)
+                    server.credential?.takeIf(String::isNotBlank)?.let(builder::setPassword)
+                    iceServers.add(builder.createIceServer())
+                }
+            }
+            android.util.Log.i("WebRTCConfig", "Using managed TURN/STUN credentials")
+        } else {
+            // Development fallback. Production should deploy the Edge Function
+            // and configure Cloudflare TURN so credentials are short-lived.
+            stunServers.forEach { url ->
             iceServers.add(
                 PeerConnection.IceServer.builder(url)
                     .createIceServer()
             )
             android.util.Log.d("WebRTCConfig", "Added STUN server: $url")
+            }
+
+            TurnServerConfig.servers.forEach { url ->
+                iceServers.add(
+                    PeerConnection.IceServer.builder(url)
+                        .setUsername(TurnServerConfig.USERNAME)
+                        .setPassword(TurnServerConfig.CREDENTIAL)
+                        .createIceServer()
+                )
+                android.util.Log.d("WebRTCConfig", "Added development TURN server: $url")
+            }
         }
 
-        TurnServerConfig.servers.forEach { url ->
-            iceServers.add(
-                PeerConnection.IceServer.builder(url)
-                    .setUsername(TurnServerConfig.USERNAME)
-                    .setPassword(TurnServerConfig.CREDENTIAL)
-                    .createIceServer()
-            )
-            android.util.Log.d("WebRTCConfig", "Added TURN server: $url (username: ${TurnServerConfig.USERNAME})")
-        }
-
-        android.util.Log.i("WebRTCConfig", "Total ICE servers configured: ${iceServers.size} (${stunServers.size} STUN + ${TurnServerConfig.servers.size} TURN)")
+        android.util.Log.i("WebRTCConfig", "Total ICE endpoints configured: ${iceServers.size}")
 
         return PeerConnection.RTCConfiguration(iceServers).apply {
             iceTransportsType = PeerConnection.IceTransportsType.ALL
@@ -83,6 +111,8 @@ object WebRTCConfig {
         const val WIDTH = 1920
         const val HEIGHT = 1080
         const val FPS = 30
-        const val MAX_BITRATE_BPS = 2_500_000 
+        // WebRTC remains free to lower bitrate/resolution on weak networks; this
+        // is only the quality ceiling for hardware that can sustain Full HD.
+        const val MAX_BITRATE_BPS = 5_000_000
     }
 }

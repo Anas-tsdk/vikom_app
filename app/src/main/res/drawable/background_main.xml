@@ -17,7 +17,7 @@
             android:pivotX="50%"
             android:pivotY="50%">
             <shape android:shape="oval">
-                <solid android:color="#1890CAF9" />
+                <solid android:color="#18C9BAF3" />
             </shape>
         </rotate>
     </item>
@@ -32,7 +32,7 @@
             android:pivotX="40%"
             android:pivotY="50%">
             <shape android:shape="oval">
-                <stroke android:width="3dp" android:color="#5090CAF9" />
+                <stroke android:width="3dp" android:color="#50C9BAF3" />
                 <solid android:color="#00000000" />
             </shape>
         </rotate>
@@ -48,7 +48,7 @@
             android:pivotX="55%"
             android:pivotY="45%">
             <shape android:shape="oval">
-                <stroke android:width="2.5dp" android:color="#701976D2" />
+                <stroke android:width="2.5dp" android:color="#707C56E3" />
                 <solid android:color="#00000000" />
             </shape>
         </rotate>
@@ -64,7 +64,7 @@
             android:pivotX="60%"
             android:pivotY="40%">
             <shape android:shape="oval">
-                <stroke android:width="3.5dp" android:color="#901565C0" />
+                <stroke android:width="3.5dp" android:color="#906B47C9" />
                 <solid android:color="#00000000" />
             </shape>
         </rotate>
@@ -80,7 +80,7 @@
             android:pivotX="45%"
             android:pivotY="55%">
             <shape android:shape="oval">
-                <stroke android:width="2dp" android:color="#3090CAF9" />
+                <stroke android:width="2dp" android:color="#30C9BAF3" />
                 <solid android:color="#00000000" />
             </shape>
         </rotate>
@@ -96,7 +96,7 @@
             android:pivotX="48%"
             android:pivotY="50%">
             <shape android:shape="oval">
-                <solid android:color="#0CBBDEFB" />
+                <solid android:color="#0CF1ECFC" />
             </shape>
         </rotate>
     </item>

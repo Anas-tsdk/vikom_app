@@ -2,8 +2,8 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_focused="true">
         <shape android:shape="rectangle">
-            <solid android:color="#1E88E5" />
-            <stroke android:width="2dp" android:color="#1565C0" />
+            <solid android:color="@color/vk_primary_focus" />
+            <stroke android:width="2dp" android:color="@color/vk_secondary" />
             <corners
                 android:topLeftRadius="50dp"
                 android:topRightRadius="50dp"
@@ -13,7 +13,7 @@
     </item>
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="#082D6B" />
+            <solid android:color="@color/vk_secondary" />
             <corners
                 android:topLeftRadius="50dp"
                 android:topRightRadius="50dp"

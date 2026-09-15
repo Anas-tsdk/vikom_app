@@ -22,26 +22,26 @@
         android:pathData="M5,6 Q5,5 6,5 L18,5 Q19,5 19,6 L19,14 Q19,15 18,15 L6,15 Q5,15 5,14 Z" />
 
     <path
-        android:fillColor="#1565C0"
+        android:fillColor="@color/vk_primary"
         android:pathData="M8.5,8.5 m-1.2,0 a1.2,1.2 0 1,0 2.4,0 a1.2,1.2 0 1,0 -2.4,0" />
     <path
-        android:fillColor="#1565C0"
+        android:fillColor="@color/vk_primary"
         android:pathData="M15.5,8.5 m-1.2,0 a1.2,1.2 0 1,0 2.4,0 a1.2,1.2 0 1,0 -2.4,0" />
 
     <path
-        android:fillColor="#E3F2FD"
+        android:fillColor="@color/vk_primary_surface"
         android:pathData="M8,12 L16,12 Q16.5,12 16.5,12.5 L16.5,13.5 Q16.5,14 16,14 L8,14 Q7.5,14 7.5,13.5 L7.5,12.5 Q7.5,12 8,12 Z" />
 
     <path
-        android:strokeColor="#1565C0"
+        android:strokeColor="@color/vk_primary"
         android:strokeWidth="0.8"
         android:pathData="M10,12 L10,14" />
     <path
-        android:strokeColor="#1565C0"
+        android:strokeColor="@color/vk_primary"
         android:strokeWidth="0.8"
         android:pathData="M12,12 L12,14" />
     <path
-        android:strokeColor="#1565C0"
+        android:strokeColor="@color/vk_primary"
         android:strokeWidth="0.8"
         android:pathData="M14,12 L14,14" />
 
@@ -50,11 +50,11 @@
         android:pathData="M7,16 Q6,16 6,17 L6,21 Q6,22 7,22 L17,22 Q18,22 18,21 L18,17 Q18,16 17,16 Z" />
 
     <path
-        android:strokeColor="#E3F2FD"
+        android:strokeColor="@color/vk_primary_surface"
         android:strokeWidth="1"
         android:pathData="M9,18 L15,18" />
     <path
-        android:strokeColor="#E3F2FD"
+        android:strokeColor="@color/vk_primary_surface"
         android:strokeWidth="1"
         android:pathData="M9,20 L13,20" />
 

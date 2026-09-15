@@ -25,6 +25,7 @@ import com.example.tv_caller_app.ui.adapters.ContactListAdapter
 import com.example.tv_caller_app.domain.ContactInfo
 import com.example.tv_caller_app.domain.UserSearchResult
 import com.example.tv_caller_app.ui.viewmodel.ContactsViewModel
+import com.example.tv_caller_app.ui.activities.MainActivity
 
 class AllContactsFragment : Fragment() {
 
@@ -55,6 +56,11 @@ class AllContactsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         ViewCompat.setAccessibilityPaneTitle(view, getString(R.string.screen_contacts))
+
+        view.findViewById<TextView>(R.id.txt_screen_title).setText(R.string.tab_contacts)
+        view.findViewById<View>(R.id.btn_screen_back).setOnClickListener {
+            (activity as? MainActivity)?.showHome()
+        }
 
         contactsList = view.findViewById(R.id.contacts_list)
         searchInput = view.findViewById(R.id.search_input)

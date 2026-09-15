@@ -88,19 +88,19 @@ class RegisterFragment : Fragment() {
         val doPasswordsMatch = password == confirmPassword && password.isNotBlank()
 
         if (phoneNumber.isNotEmpty() && !isPhoneValid) {
-            phoneNumberInput.error = "Phone number must be at least 10 digits"
+            phoneNumberInput.error = getString(R.string.register_phone_error)
         } else {
             phoneNumberInput.error = null
         }
 
         if (confirmPassword.isNotEmpty() && password.isNotEmpty() && !doPasswordsMatch) {
-            confirmPasswordInput.error = "Passwords do not match"
+            confirmPasswordInput.error = getString(R.string.register_password_mismatch_error)
         } else {
             confirmPasswordInput.error = null
         }
 
         if (password.isNotEmpty() && !isPasswordValid) {
-            passwordInput.error = "Must be 8+ chars with uppercase, lowercase, number, and special character"
+            passwordInput.error = getString(R.string.register_password_requirements_error)
         } else {
             passwordInput.error = null
         }
@@ -127,7 +127,13 @@ class RegisterFragment : Fragment() {
             val password = passwordInput.text.toString()
             val confirmPassword = confirmPasswordInput.text.toString()
 
-            viewModel.register(email, password, confirmPassword, username, phoneNumber)
+            viewModel.register(
+                email,
+                password,
+                confirmPassword,
+                username,
+                phoneNumber
+            )
         }
 
         backToLoginButton.setOnClickListener {
@@ -166,7 +172,6 @@ class RegisterFragment : Fragment() {
             phoneNumberInput.isEnabled = !isLoading
             passwordInput.isEnabled = !isLoading
             confirmPasswordInput.isEnabled = !isLoading
-
             if (isLoading) {
                 registerButton.isEnabled = false
                 registerButton.text = getString(R.string.creating_account)

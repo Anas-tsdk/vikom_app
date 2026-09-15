@@ -5,10 +5,10 @@
         <shape android:shape="rectangle">
             <gradient
                 android:angle="0"
-                android:startColor="#1A1A2E"
-                android:centerColor="#3D4A7A"
-                android:endColor="#6B7FBD" />
-            <stroke android:width="2dp" android:color="#7986CB" />
+                android:startColor="@color/vk_secondary"
+                android:centerColor="@color/vk_primary_pressed"
+                android:endColor="@color/vk_primary_focus" />
+            <stroke android:width="2dp" android:color="@color/vk_primary_focus" />
             <corners android:radius="28dp" />
         </shape>
     </item>
@@ -17,9 +17,9 @@
         <shape android:shape="rectangle">
             <gradient
                 android:angle="0"
-                android:startColor="#0F0F1E"
-                android:centerColor="#2A3560"
-                android:endColor="#4A5490" />
+                android:startColor="@color/vk_secondary_pressed"
+                android:centerColor="@color/vk_secondary"
+                android:endColor="@color/vk_primary_pressed" />
             <corners android:radius="28dp" />
         </shape>
     </item>
@@ -28,9 +28,9 @@
         <shape android:shape="rectangle">
             <gradient
                 android:angle="0"
-                android:startColor="#1A1A2E"
-                android:centerColor="#2E3A6E"
-                android:endColor="#5C6BAE" />
+                android:startColor="@color/vk_secondary"
+                android:centerColor="@color/vk_primary_pressed"
+                android:endColor="@color/vk_primary" />
             <corners android:radius="28dp" />
         </shape>
     </item>

@@ -18,6 +18,7 @@ import com.example.tv_caller_app.calling.permissions.PermissionHelper
 import com.example.tv_caller_app.calling.CallIntentExtras
 import com.example.tv_caller_app.calling.IncomingCallEvent
 import com.example.tv_caller_app.ui.activities.IncomingCallActivity
+import com.example.tv_caller_app.data.repository.AppointmentRepository
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,6 +42,7 @@ class SignalingForegroundService : Service() {
         private const val ACTION_START = "com.example.tv_caller_app.ACTION_START_SIGNALING"
         private const val ACTION_STOP = "com.example.tv_caller_app.ACTION_STOP_SIGNALING"
         private const val PRESENCE_HEARTBEAT_INTERVAL_MS = 5 * 60 * 1000L
+        private const val INCOMING_CALL_NOTIFICATION_TIMEOUT_MS = 60_000L
 
         fun startService(context: Context) {
             val intent = Intent(context, SignalingForegroundService::class.java).apply {
@@ -55,16 +57,85 @@ class SignalingForegroundService : Service() {
         }
 
         fun stopService(context: Context) {
-            val intent = Intent(context, SignalingForegroundService::class.java).apply {
-                action = ACTION_STOP
-            }
-            context.startService(intent)
+            context.stopService(Intent(context, SignalingForegroundService::class.java))
             Log.d(TAG, "Service stop requested")
+        }
+
+        /**
+         * Posts the same incoming-call notification used by the foreground
+         * listener. This is also safe to call when Android refuses to start
+         * that listener from the background.
+         */
+        fun postIncomingCallNotification(context: Context, event: IncomingCallEvent): Boolean {
+            if (!PermissionHelper.hasNotificationPermission(context)) {
+                Log.w(TAG, "Cannot show incoming call notification without notification permission")
+                return false
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val notificationManager =
+                    context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.createNotificationChannel(
+                    NotificationChannel(
+                        INCOMING_CALL_CHANNEL_ID,
+                        INCOMING_CALL_CHANNEL_NAME,
+                        NotificationManager.IMPORTANCE_HIGH
+                    ).apply {
+                        description = context.getString(R.string.incoming_call)
+                        setShowBadge(true)
+                        enableVibration(true)
+                        lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                    }
+                )
+            }
+
+            val fullScreenIntent = IncomingCallActivity.createIntent(
+                context = context,
+                callerId = event.callerId,
+                callerName = event.callerName,
+                callId = event.callerId + "_" + System.currentTimeMillis(),
+                nickname = event.nickname,
+                avatarUrl = event.avatarUrl,
+                callType = event.mediaType
+            )
+            val pendingIntentFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            } else {
+                PendingIntent.FLAG_UPDATE_CURRENT
+            }
+            val fullScreenPendingIntent = PendingIntent.getActivity(
+                context,
+                1,
+                fullScreenIntent,
+                pendingIntentFlags
+            )
+            val notification = NotificationCompat.Builder(context, INCOMING_CALL_CHANNEL_ID)
+                .setContentTitle(context.getString(R.string.incoming_call))
+                .setContentText(
+                    context.getString(R.string.notification_incoming_call_from, event.callerName)
+                )
+                .setSmallIcon(R.drawable.ic_call)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_CALL)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setFullScreenIntent(fullScreenPendingIntent, true)
+                .setAutoCancel(true)
+                .setTimeoutAfter(INCOMING_CALL_NOTIFICATION_TIMEOUT_MS)
+                .build()
+
+            return runCatching {
+                val notificationManager =
+                    context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.notify(INCOMING_CALL_NOTIFICATION_ID, notification)
+            }.onFailure { error ->
+                Log.e(TAG, "Could not show incoming call notification", error)
+            }.isSuccess
         }
     }
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var incomingCallJob: Job? = null
+    private var appointmentEventJob: Job? = null
     private var presenceHeartbeatJob: Job? = null
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
     private val serviceStartTime = System.currentTimeMillis()
@@ -82,6 +153,8 @@ class SignalingForegroundService : Service() {
             ACTION_STOP -> {
                 Log.i(TAG, "Stopping signaling foreground service")
                 stopIncomingCallObserver()
+                appointmentEventJob?.cancel()
+                appointmentEventJob = null
                 dismissIncomingCallNotification()
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     stopForeground(STOP_FOREGROUND_REMOVE)
@@ -116,11 +189,20 @@ class SignalingForegroundService : Service() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         stopIncomingCallObserver()
+        appointmentEventJob?.cancel()
+        appointmentEventJob = null
         presenceHeartbeatJob?.cancel()
         unregisterNetworkCallback()
+        dismissIncomingCallNotification()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+            @Suppress("DEPRECATION")
+            stopForeground(true)
+        }
         serviceScope.coroutineContext[Job]?.cancel()
+        super.onDestroy()
         Log.d(TAG, "SignalingForegroundService destroyed")
     }
 
@@ -194,6 +276,17 @@ class SignalingForegroundService : Service() {
                 } else {
                     dismissIncomingCallNotification()
                 }
+            }
+        }
+        appointmentEventJob?.cancel()
+        appointmentEventJob = serviceScope.launch {
+            app.getAppointmentEventFlow().collect { event ->
+                Log.i(TAG, "Appointment ${event.appointmentId} changed (${event.action})")
+                AppointmentRepository.getInstance(
+                    SessionManager.getInstance(this@SignalingForegroundService),
+                    app.getAuthRepository()
+                ).invalidateCache()
+                AppointmentNotificationManager.show(this@SignalingForegroundService, event)
             }
         }
     }
@@ -367,31 +460,7 @@ class SignalingForegroundService : Service() {
     }
 
     private fun showIncomingCallNotification(event: IncomingCallEvent) {
-        val fullScreenIntent = buildIncomingCallIntent(event)
-
-        val pendingIntentFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        } else {
-            PendingIntent.FLAG_UPDATE_CURRENT
-        }
-
-        val fullScreenPendingIntent = PendingIntent.getActivity(
-            this, 1, fullScreenIntent, pendingIntentFlags
-        )
-
-        val notification = NotificationCompat.Builder(this, INCOMING_CALL_CHANNEL_ID)
-            .setContentTitle(getString(R.string.incoming_call))
-            .setContentText(getString(R.string.notification_incoming_call_from, event.callerName))
-            .setSmallIcon(R.drawable.ic_call)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setCategory(NotificationCompat.CATEGORY_CALL)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setFullScreenIntent(fullScreenPendingIntent, true)
-            .setAutoCancel(true)
-            .build()
-
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(INCOMING_CALL_NOTIFICATION_ID, notification)
+        postIncomingCallNotification(this, event)
     }
 
     private fun dismissIncomingCallNotification() {

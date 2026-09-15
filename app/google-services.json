@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1020144597671",
+    "project_id": "vikom-tv-app",
+    "storage_bucket": "vikom-tv-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1020144597671:android:629d4c6eb87d314f897982",
+        "android_client_info": {
+          "package_name": "com.example.tv_caller_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBeCboqy5OEiYVULDylA_vuEudQcmw3VtE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

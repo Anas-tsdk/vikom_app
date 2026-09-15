@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/vk_home_background"
+    android:padding="@dimen/padding_large">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/appointment_card_background"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/dialog_padding_horizontal"
+            android:paddingTop="@dimen/dialog_padding_top"
+            android:paddingBottom="@dimen/dialog_padding_bottom">
+
+            <TextView android:id="@+id/txt_appointment_action" style="@style/VK.Text.Title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" />
+            <TextView android:id="@+id/txt_appointment_status" style="@style/VK.Text.Caption" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:paddingHorizontal="@dimen/padding_standard" android:paddingVertical="8dp" android:textColor="@color/vk_white" android:textStyle="bold" />
+            <TextView android:id="@+id/txt_appointment_response" style="@style/VK.Text.Caption" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:paddingHorizontal="@dimen/padding_standard" android:paddingVertical="8dp" android:textColor="@color/vk_white" android:textStyle="bold" />
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginVertical="@dimen/padding_standard" android:background="@color/vk_border" />
+            <TextView android:id="@+id/txt_appointment_date" style="@style/VK.Text.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" />
+            <TextView android:id="@+id/txt_appointment_time" style="@style/VK.Text.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:drawableStart="@drawable/ic_clock" android:drawablePadding="8dp" android:textColor="@color/vk_gray_700" />
+            <TextView android:id="@+id/txt_appointment_personnel" style="@style/VK.Text.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" />
+            <TextView android:id="@+id/txt_appointment_message" style="@style/VK.Text.Caption" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" />
+            <TextView android:id="@+id/txt_appointment_prompt" style="@style/VK.Text.Body.Emphasis" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/padding_large" android:gravity="center" android:text="@string/appointment_answer_prompt" android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/appointment_response_actions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/padding_standard"
+                android:orientation="horizontal"
+                android:visibility="gone">
+                <TextView android:id="@+id/btn_appointment_decline" style="@style/VK.Text.Body.Emphasis" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="8dp" android:layout_weight="1" android:background="@drawable/vk_button_secondary" android:clickable="true" android:focusable="true" android:gravity="center" android:minHeight="56dp" android:text="@string/appointment_decline" android:textColor="@color/vk_primary" />
+                <TextView android:id="@+id/btn_appointment_accept" style="@style/VK.Text.Body.Emphasis" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:layout_weight="1" android:background="@drawable/vk_button_primary" android:clickable="true" android:focusable="true" android:gravity="center" android:minHeight="56dp" android:text="@string/appointment_accept" android:textColor="@color/vk_white" />
+            </LinearLayout>
+
+            <TextView android:id="@+id/txt_appointment_progress" style="@style/VK.Text.Body.Muted" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/padding_standard" android:text="@string/appointment_answering" android:visibility="gone" />
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/padding_large" android:orientation="horizontal">
+                <TextView android:id="@+id/btn_appointment_see_all" style="@style/VK.Text.Body.Emphasis" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="8dp" android:layout_weight="1" android:background="@drawable/vk_button_primary" android:clickable="true" android:focusable="true" android:gravity="center" android:minHeight="56dp" android:paddingHorizontal="@dimen/padding_standard" android:text="@string/appointment_see_all" android:textColor="@color/vk_white" />
+                <TextView android:id="@+id/btn_appointment_close" style="@style/VK.Text.Body.Emphasis" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:layout_weight="1" android:background="@drawable/vk_button_secondary" android:clickable="true" android:focusable="true" android:gravity="center" android:minHeight="56dp" android:paddingHorizontal="@dimen/padding_standard" android:text="@string/home_title" android:textColor="@color/vk_primary" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>

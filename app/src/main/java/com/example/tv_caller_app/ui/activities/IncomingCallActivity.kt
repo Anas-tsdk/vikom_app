@@ -1,5 +1,6 @@
 package com.example.tv_caller_app.ui.activities
 
+import android.Manifest
 import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
@@ -22,6 +23,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentActivity
 import com.example.tv_caller_app.R
@@ -59,6 +62,19 @@ class IncomingCallActivity : FragmentActivity() {
     private var vibrator: Vibrator? = null
     private var wakeLock: PowerManager.WakeLock? = null
     private val autoAnswerHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private var pendingAnswerMediaType: String = "audio"
+    private val answerPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { result ->
+        val videoAllowed = pendingAnswerMediaType == "video" &&
+            result[Manifest.permission.CAMERA] != false &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
+            android.content.pm.PackageManager.PERMISSION_GRANTED
+        if (pendingAnswerMediaType == "video" && !videoAllowed) {
+            Toast.makeText(this, getString(R.string.camera_permission_audio_fallback), Toast.LENGTH_LONG).show()
+        }
+        completeAnswer(if (videoAllowed) "video" else "audio")
+    }
 
     companion object {
         private const val TAG = "IncomingCallActivity"
@@ -309,7 +325,32 @@ class IncomingCallActivity : FragmentActivity() {
             return
         }
 
-        Log.i(TAG, "Answering call from: $callerName as ${mediaType ?: callType}")
+        val requestedType = mediaType ?: callType
+        pendingAnswerMediaType = requestedType
+        val missing = buildList {
+            if (ContextCompat.checkSelfPermission(
+                    this@IncomingCallActivity,
+                    Manifest.permission.RECORD_AUDIO
+                ) != android.content.pm.PackageManager.PERMISSION_GRANTED
+            ) add(Manifest.permission.RECORD_AUDIO)
+            if (requestedType == "video" && ContextCompat.checkSelfPermission(
+                    this@IncomingCallActivity,
+                    Manifest.permission.CAMERA
+                ) != android.content.pm.PackageManager.PERMISSION_GRANTED
+            ) add(Manifest.permission.CAMERA)
+        }
+
+        if (missing.isNotEmpty()) {
+            answerPermissionLauncher.launch(missing.toTypedArray())
+            return
+        }
+
+        completeAnswer(requestedType)
+    }
+
+    private fun completeAnswer(mediaType: String) {
+        if (callViewModel.callState.value !is CallViewModel.CallState.RingingIncoming) return
+        Log.i(TAG, "Answering call from: $callerName as $mediaType")
 
         stopRingtone()
         stopVibration()

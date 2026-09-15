@@ -1,6 +1,8 @@
 [versions]
 agp = "8.12.3"
 kotlin = "2.0.21"
+googleServices = "4.4.2"
+firebaseBom = "33.7.0"
 coreKtx = "1.17.0"
 leanback = "1.2.0"
 glide = "4.11.0"
@@ -35,6 +37,8 @@ supabase-gotrue-kt = { group = "io.github.jan-tennert.supabase", name = "gotrue-
 supabase-realtime-kt = { group = "io.github.jan-tennert.supabase", name = "realtime-kt", version.ref = "supabase" }
 supabase-storage-kt = { group = "io.github.jan-tennert.supabase", name = "storage-kt", version.ref = "supabase" }
 supabase-functions-kt = { group = "io.github.jan-tennert.supabase", name = "functions-kt", version.ref = "supabase" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-messaging-ktx = { group = "com.google.firebase", name = "firebase-messaging-ktx" }
 ktor-client-android = { group = "io.ktor", name = "ktor-client-android", version.ref = "ktor" }
 ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
@@ -54,4 +58,4 @@ commons-compress = { group = "org.apache.commons", name = "commons-compress", ve
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }

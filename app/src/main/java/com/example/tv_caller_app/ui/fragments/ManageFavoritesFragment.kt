@@ -197,8 +197,8 @@ class ManageFavoritesFragment : Fragment() {
             val prioMax = PriorityRepository.MAX_SLOTS
             val prioFree = prioMax - prioUsed
 
-            txtFavCount.text = "Favoritter: $favCount"
-            txtPrioCount.text = "Topp prioritet: $prioUsed / $prioMax"
+            txtFavCount.text = getString(R.string.favorites_count, favCount)
+            txtPrioCount.text = getString(R.string.top_priority_count, prioUsed, prioMax)
         }
     }
 
@@ -314,11 +314,11 @@ class ManageFavoritesFragment : Fragment() {
 
         private fun applyFavoriteStyle(container: View, icon: ImageView, label: TextView, isFavorite: Boolean) {
             if (isFavorite) {
-                label.text = "Favoritt"
+                label.setText(R.string.favorite)
                 container.setBackgroundResource(R.drawable.button_primary)
                 icon.setImageResource(R.drawable.ic_star_white)
             } else {
-                label.text = "Ikke favoritt"
+                label.setText(R.string.not_favorite)
                 container.setBackgroundResource(R.drawable.button_secondary)
                 icon.setImageResource(R.drawable.ic_star_slash_white)
             }
@@ -334,7 +334,7 @@ class ManageFavoritesFragment : Fragment() {
                     container.isEnabled = true
                     container.isFocusable = true
                     container.alpha = 1f
-                    label.text = "Prioritert"
+                    label.setText(R.string.priority_selected)
                     container.setBackgroundResource(R.drawable.button_primary)
                     icon.setImageResource(R.drawable.ic_priority_white)
                 }
@@ -343,7 +343,7 @@ class ManageFavoritesFragment : Fragment() {
                     container.isEnabled = false
                     container.isFocusable = true
                     container.alpha = 0.4f
-                    label.text = "Ingen plass"
+                    label.setText(R.string.priority_no_space)
                     container.setBackgroundResource(R.drawable.button_secondary)
                     icon.setImageResource(R.drawable.ic_priority_slash_white)
                 }
@@ -352,7 +352,7 @@ class ManageFavoritesFragment : Fragment() {
                     container.isEnabled = true
                     container.isFocusable = true
                     container.alpha = 1f
-                    label.text = "Ikke prioritert"
+                    label.setText(R.string.priority_not_selected)
                     container.setBackgroundResource(R.drawable.button_secondary)
                     icon.setImageResource(R.drawable.ic_priority_slash_white)
                 }

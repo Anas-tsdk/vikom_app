@@ -3,11 +3,14 @@ package com.example.tv_caller_app.calling.service
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.ServiceInfo
 import android.os.Build
 import java.util.Locale
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.example.tv_caller_app.R
 import com.example.tv_caller_app.ui.activities.InCallActivity
 import java.util.concurrent.atomic.AtomicInteger
@@ -29,17 +32,24 @@ class CallService : Service() {
 
         private const val EXTRA_CONTACT_NAME = "contact_name"
         private const val EXTRA_IS_INCOMING = "is_incoming"
+        private const val EXTRA_MEDIA_TYPE = "media_type"
         private const val EXTRA_DURATION = "duration"
         private const val EXTRA_IS_MUTED = "is_muted"
         private const val EXTRA_IS_SPEAKER_ON = "is_speaker_on"
 
         private val requestCodeGenerator = AtomicInteger(2000)
 
-        fun startService(context: Context, contactName: String, isIncoming: Boolean) {
+        fun startService(
+            context: Context,
+            contactName: String,
+            isIncoming: Boolean,
+            mediaType: String
+        ) {
             val intent = Intent(context, CallService::class.java).apply {
                 action = ACTION_START
                 putExtra(EXTRA_CONTACT_NAME, contactName)
                 putExtra(EXTRA_IS_INCOMING, isIncoming)
+                putExtra(EXTRA_MEDIA_TYPE, mediaType)
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -68,17 +78,14 @@ class CallService : Service() {
         }
 
         fun stopService(context: Context) {
-            val intent = Intent(context, CallService::class.java).apply {
-                action = ACTION_STOP
-            }
-
-            context.startService(intent)
+            context.stopService(Intent(context, CallService::class.java))
             Log.d(TAG,"Service stop requested")
         }
     }
 
     private var contactName: String = ""
     private var isIncoming: Boolean = false
+    private var mediaType: String = "audio"
     private var callDuration: Long = 0
     private var isMuted: Boolean = false
     private var isSpeakerOn: Boolean = false
@@ -97,11 +104,16 @@ class CallService : Service() {
             ACTION_START -> {
                 contactName = intent.getStringExtra(EXTRA_CONTACT_NAME) ?: getString(R.string.unknown_contact)
                 isIncoming = intent.getBooleanExtra(EXTRA_IS_INCOMING, false)
+                mediaType = if (intent.getStringExtra(EXTRA_MEDIA_TYPE).equals("video", true)) {
+                    "video"
+                } else {
+                    "audio"
+                }
                 callDuration = 0
 
                 Log.i(TAG, "Starting foreground service for call with: $contactName")
 
-                startForeground(NOTIFICATION_ID, buildNotification())
+                startCallForeground()
             }
 
             ACTION_UPDATE_TIMER -> {
@@ -137,8 +149,37 @@ class CallService : Service() {
     }
 
     override fun onDestroy() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+            @Suppress("DEPRECATION")
+            stopForeground(true)
+        }
         super.onDestroy()
         Log.d(TAG, "CallService destroyed")
+    }
+
+    private fun startCallForeground() {
+        val notification = buildNotification()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            var serviceType = ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) ==
+                    PackageManager.PERMISSION_GRANTED
+                ) {
+                    serviceType = serviceType or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+                }
+                if (mediaType == "video" &&
+                    ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) ==
+                    PackageManager.PERMISSION_GRANTED
+                ) {
+                    serviceType = serviceType or ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA
+                }
+            }
+            startForeground(NOTIFICATION_ID, notification, serviceType)
+        } else {
+            startForeground(NOTIFICATION_ID, notification)
+        }
     }
 
     private fun createNotificationChannel() {

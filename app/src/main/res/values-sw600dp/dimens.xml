@@ -10,7 +10,7 @@
     <dimen name="text_call_timer">38sp</dimen>
     <dimen name="text_call_status">22sp</dimen>
 
-    <dimen name="button_call_action">100dp</dimen>
+    <dimen name="button_call_action">80dp</dimen>
     <dimen name="button_in_call">80dp</dimen>
     <dimen name="button_height">56dp</dimen>
 
@@ -39,7 +39,7 @@
     <dimen name="divider_width">500dp</dimen>
 
     <dimen name="call_avatar_size">180dp</dimen>
-    <dimen name="call_button_padding">22dp</dimen>
+    <dimen name="call_button_padding">18dp</dimen>
     <dimen name="in_call_button_padding">18dp</dimen>
     <dimen name="call_button_spacing">40dp</dimen>
 
@@ -69,4 +69,15 @@
     <dimen name="avatar_size_contact_card">64dp</dimen>
     <dimen name="text_contact_card_name">18sp</dimen>
     <dimen name="text_contact_card_subtitle">14sp</dimen>
+
+    <dimen name="text_body">19sp</dimen>
+    <dimen name="hero_time_size">64sp</dimen>
+    <dimen name="day_anchor_width">140dp</dimen>
+    <dimen name="day_anchor_number">34sp</dimen>
+    <dimen name="list_time_size">28sp</dimen>
+    <dimen name="home_tile_icon">64dp</dimen>
+    <dimen name="care_team_avatar">68dp</dimen>
+    <dimen name="chip_padding_horizontal">18dp</dimen>
+    <dimen name="chip_padding_vertical">8dp</dimen>
+    <dimen name="chip_gap">12dp</dimen>
 </resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/topic_medicine"
+    style="@style/VK.HomeTile"
+    android:layout_height="match_parent"
+    android:contentDescription="@string/ai_topic_medicine"
+    android:gravity="center_vertical">
+
+    <ImageView style="@style/VK.HomeTile.Icon" android:contentDescription="@null" android:importantForAccessibility="no" android:src="@drawable/ic_acc_medicine" />
+    <TextView style="@style/VK.HomeTile.Label" android:text="@string/ai_topic_medicine" />
+    <TextView android:id="@+id/txt_medicine_summary" style="@style/VK.HomeTile.Sub" android:maxLines="2" />
+</LinearLayout>

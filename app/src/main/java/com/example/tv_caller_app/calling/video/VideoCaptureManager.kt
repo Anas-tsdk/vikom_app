@@ -2,6 +2,9 @@ package com.example.tv_caller_app.calling.video
 
 import android.content.Context
 import android.util.Log
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
 import com.example.tv_caller_app.calling.webrtc.WebRTCConfig
 import com.example.tv_caller_app.calling.permissions.PermissionHelper
 import org.webrtc.*
@@ -18,12 +21,18 @@ class VideoCaptureManager(
     var onLocalVideoTrack: ((VideoTrack) -> Unit)? = null
 
     private var videoEnabled = false
-    private var videoCapturer: VideoCapturer? = null
+    private var videoCapturer: CameraVideoCapturer? = null
     private var videoSource: VideoSource? = null
     private var localVideoTrack: VideoTrack? = null
     private var surfaceTextureHelper: SurfaceTextureHelper? = null
+    private var currentCameraIsFrontFacing = true
 
-    fun hasCamera(): Boolean = PermissionHelper.hasCameraHardware(context)
+    fun hasCameraHardware(): Boolean = PermissionHelper.hasCameraHardware(context)
+
+    fun hasCamera(): Boolean = hasCameraHardware() &&
+        ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+
+    fun hasMultipleCameras(): Boolean = hasCamera() && cameraEnumerator().deviceNames.size > 1
 
     fun setVideoEnabled(enabled: Boolean) {
         videoEnabled = enabled
@@ -90,6 +99,28 @@ class VideoCaptureManager(
         }
     }
 
+    /** Switches between the front and rear cameras without renegotiating the call. */
+    fun switchCamera(onComplete: (success: Boolean, frontFacing: Boolean) -> Unit) {
+        val capturer = videoCapturer
+        if (capturer == null || !hasMultipleCameras()) {
+            onComplete(false, currentCameraIsFrontFacing)
+            return
+        }
+
+        capturer.switchCamera(object : CameraVideoCapturer.CameraSwitchHandler {
+            override fun onCameraSwitchDone(isFrontCamera: Boolean) {
+                currentCameraIsFrontFacing = isFrontCamera
+                Log.i(TAG, "Camera switched; frontFacing=$isFrontCamera")
+                onComplete(true, isFrontCamera)
+            }
+
+            override fun onCameraSwitchError(errorDescription: String?) {
+                Log.e(TAG, "Could not switch camera: $errorDescription")
+                onComplete(false, currentCameraIsFrontFacing)
+            }
+        })
+    }
+
     fun release() {
         try { videoCapturer?.stopCapture() } catch (e: Exception) { Log.w(TAG, "Error stopping capturer", e) }
         try { videoCapturer?.dispose() } catch (e: Exception) { Log.w(TAG, "Error disposing capturer", e) }
@@ -102,20 +133,37 @@ class VideoCaptureManager(
         localVideoTrack = null
         surfaceTextureHelper = null
         videoEnabled = false
+        currentCameraIsFrontFacing = true
         Log.d(TAG, "Video resources released")
     }
 
 
-    private fun createVideoCapturer(): VideoCapturer? {
-        if (!hasCamera()) return null
-        val enumerator = Camera2Enumerator(context)
+    private fun createVideoCapturer(): CameraVideoCapturer? {
+        if (!hasCamera()) {
+            Log.w(TAG, "Camera hardware or CAMERA permission is unavailable")
+            return null
+        }
+        val enumerator = cameraEnumerator()
         for (deviceName in enumerator.deviceNames) {
             if (enumerator.isFrontFacing(deviceName)) {
-                return enumerator.createCapturer(deviceName, null)
+                return enumerator.createCapturer(deviceName, null)?.also {
+                    currentCameraIsFrontFacing = true
+                }
             }
         }
         return enumerator.deviceNames.firstOrNull()?.let {
-            enumerator.createCapturer(it, null)
+            enumerator.createCapturer(it, null)?.also { _ ->
+                currentCameraIsFrontFacing = enumerator.isFrontFacing(it)
+            }
         }
     }
+
+    private fun cameraEnumerator(): CameraEnumerator =
+        if (Camera2Enumerator.isSupported(context)) {
+            Camera2Enumerator(context)
+        } else {
+            // Several older tablets expose only the Camera1 API. Falling back
+            // keeps video and camera switching available on those devices.
+            Camera1Enumerator(true)
+        }
 }

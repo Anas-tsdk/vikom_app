@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    android:background="@drawable/appointment_card_background"
+    android:gravity="center_vertical"
+    android:minHeight="@dimen/list_item_height"
+    android:orientation="horizontal"
+    android:padding="@dimen/padding_standard">
+    <TextView android:id="@+id/txt_member_initials" style="@style/VK.Text.Heading" android:layout_width="@dimen/care_team_avatar" android:layout_height="@dimen/care_team_avatar" android:background="@drawable/care_team_avatar_background" android:gravity="center" android:textColor="@color/vk_white" />
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/padding_standard" android:layout_weight="1" android:orientation="vertical">
+        <TextView android:id="@+id/txt_member_name" style="@style/VK.Text.Body.Emphasis" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="1" />
+        <TextView android:id="@+id/txt_member_role" style="@style/VK.Text.Caption" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    </LinearLayout>
+    <TextView android:id="@+id/txt_member_phone" style="@style/VK.Text.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:drawableStart="@drawable/ic_call" android:drawablePadding="10dp" android:textColor="@color/vk_gray_700" />
+</LinearLayout>

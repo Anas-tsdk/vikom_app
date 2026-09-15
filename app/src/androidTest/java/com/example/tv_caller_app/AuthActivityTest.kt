@@ -1,5 +1,6 @@
 package com.example.tv_caller_app
 
+import android.content.Intent
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.accessibility.AccessibilityChecks
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityCheckResultUtils
@@ -13,6 +14,8 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
+import com.example.tv_caller_app.auth.SessionManager
 import com.example.tv_caller_app.ui.activities.AuthActivity
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -35,7 +38,17 @@ class AuthActivityTest {
     }
 
     @get:Rule
-    val activityRule = ActivityScenarioRule(AuthActivity::class.java)
+    val activityRule = ActivityScenarioRule<AuthActivity>(
+        Intent(
+            InstrumentationRegistry.getInstrumentation().targetContext.also {
+                // AuthActivity redirects a remembered user to MainActivity. Clear
+                // only the test installation's local session before the rule
+                // launches so this suite is reliable when run on a used device.
+                SessionManager.getInstance(it).clearSession()
+            },
+            AuthActivity::class.java
+        )
+    )
 
     @Test
     fun containerIsVisible() {

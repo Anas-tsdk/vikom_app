@@ -1,6 +1,7 @@
 package com.example.tv_caller_app.calling.webrtc
 
 import android.content.Context
+import android.media.MediaRecorder
 import android.util.Log
 import com.example.tv_caller_app.calling.audio.AudioRouteManager
 import com.example.tv_caller_app.calling.audio.AudioTrackManager
@@ -131,10 +132,19 @@ class WebRTCManager(private val context: Context) {
 
                 PeerConnectionFactory.initialize(initOptions)
 
+                val hardwareAec = JavaAudioDeviceModule.isBuiltInAcousticEchoCancelerSupported()
+                val hardwareNoiseSuppression = JavaAudioDeviceModule.isBuiltInNoiseSuppressorSupported()
                 val adm = JavaAudioDeviceModule.builder(context)
-                    .setUseHardwareAcousticEchoCanceler(false)
-                    .setUseHardwareNoiseSuppressor(false)
+                    // VOICE_COMMUNICATION activates the device's call-tuned
+                    // signal path. WebRTC still supplies AGC/high-pass filtering.
+                    .setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
+                    .setUseHardwareAcousticEchoCanceler(hardwareAec)
+                    .setUseHardwareNoiseSuppressor(hardwareNoiseSuppression)
+                    .setUseStereoInput(false)
+                    .setUseStereoOutput(false)
+                    .setUseLowLatency(true)
                     .createAudioDeviceModule()
+                Log.i(TAG, "Audio processing: hardwareAEC=$hardwareAec, hardwareNS=$hardwareNoiseSuppression, AGC=true")
                 audioDeviceModule = adm
 
                 val options = PeerConnectionFactory.Options()
@@ -182,9 +192,14 @@ class WebRTCManager(private val context: Context) {
 
     fun hasCamera(): Boolean = videoManager.hasCamera()
 
+    fun hasMultipleCameras(): Boolean = videoManager.hasMultipleCameras()
+
     fun startVideoCapture() = videoManager.startCapture()
 
     fun stopVideoCapture() = videoManager.stopCapture()
+
+    fun switchCamera(onComplete: (success: Boolean, frontFacing: Boolean) -> Unit) =
+        videoManager.switchCamera(onComplete)
 
     private fun startStatsLogging() {
         lastBytesSent = 0L
@@ -256,14 +271,21 @@ class WebRTCManager(private val context: Context) {
     }
 
     private fun applyBitrateCap(pc: PeerConnection) {
-        pc.senders.forEach { sender ->
+        pc.senders
+            .filter { it.track()?.kind() == MediaStreamTrack.VIDEO_TRACK_KIND }
+            .forEach { sender ->
             val params = sender.parameters
             if (params.encodings.isNotEmpty()) {
-                params.encodings.forEach { it.maxBitrateBps = WebRTCConfig.VideoConstraints.MAX_BITRATE_BPS }
+                params.degradationPreference = RtpParameters.DegradationPreference.BALANCED
+                params.encodings.forEach {
+                    it.maxBitrateBps = WebRTCConfig.VideoConstraints.MAX_BITRATE_BPS
+                    it.maxFramerate = WebRTCConfig.VideoConstraints.FPS
+                    it.bitratePriority = 1.5
+                }
                 sender.parameters = params
             }
         }
-        Log.d(TAG, "Bitrate cap applied: ${WebRTCConfig.VideoConstraints.MAX_BITRATE_BPS / 1000} Kbps per sender")
+        Log.d(TAG, "Adaptive video ceiling: ${WebRTCConfig.VideoConstraints.MAX_BITRATE_BPS / 1000} Kbps")
     }
 
     private fun createAudioTrack(): AudioTrack? {
@@ -333,7 +355,8 @@ class WebRTCManager(private val context: Context) {
                 onRemoveStreamCallback = { stream ->
                     Log.i(TAG, "Remote stream removed")
                     audioTrackManager.onRemoveStream()
-                }
+                },
+                onTrackCallback = { track -> handleRemoteTrack(track) }
             )
 
             peerConnection = peerConnectionFactory?.createPeerConnection(rtcConfig, observer)
@@ -344,6 +367,19 @@ class WebRTCManager(private val context: Context) {
         } catch (e: Exception) {
             Log.e(TAG, "Failed to create peer connection", e)
             return null
+        }
+    }
+
+    private fun handleRemoteTrack(track: MediaStreamTrack?) {
+        when (track) {
+            is AudioTrack -> audioTrackManager.onRemoteAudioTrack(track)
+            is VideoTrack -> {
+                remoteVideoTrack = track
+                track.setEnabled(true)
+                onRemoteVideoTrack?.invoke(track)
+                Log.d(TAG, "Remote Unified Plan video track enabled")
+            }
+            else -> Log.d(TAG, "Ignoring unsupported remote track: ${track?.kind()}")
         }
     }
 
@@ -643,7 +679,8 @@ class WebRTCManager(private val context: Context) {
         private val onIceCandidateCallback: (IceCandidate) -> Unit,
         private val onConnectionChangeCallback: (PeerConnection.IceConnectionState) -> Unit,
         private val onAddStreamCallback: (MediaStream) -> Unit,
-        private val onRemoveStreamCallback: (MediaStream) -> Unit
+        private val onRemoveStreamCallback: (MediaStream) -> Unit,
+        private val onTrackCallback: (MediaStreamTrack?) -> Unit
     ) : PeerConnection.Observer {
 
         override fun onIceCandidate(candidate: IceCandidate?) {
@@ -699,7 +736,15 @@ class WebRTCManager(private val context: Context) {
         }
 
         override fun onAddTrack(receiver: RtpReceiver?, streams: Array<out MediaStream>?) {
-            Log.d(TAG, "Track added: ${receiver?.track()?.kind()}")
+            val track = receiver?.track()
+            Log.d(TAG, "Track added: ${track?.kind()}")
+            onTrackCallback(track)
+        }
+
+        override fun onTrack(transceiver: RtpTransceiver?) {
+            val track = transceiver?.receiver?.track()
+            Log.d(TAG, "Unified Plan track received: ${track?.kind()}")
+            onTrackCallback(track)
         }
     }
 }

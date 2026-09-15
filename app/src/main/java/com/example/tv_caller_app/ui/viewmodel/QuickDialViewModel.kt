@@ -10,6 +10,9 @@ import com.example.tv_caller_app.TVCallerApplication
 import com.example.tv_caller_app.data.repository.PriorityRepository
 import com.example.tv_caller_app.domain.ContactInfo
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 class QuickDialViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -24,6 +27,7 @@ class QuickDialViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     private var allContactsList: List<ContactInfo> = emptyList()
+    private var refreshJob: Job? = null
 
     private val _allContacts = MutableLiveData<List<ContactInfo>>(emptyList())
     val allContacts: LiveData<List<ContactInfo>> = _allContacts
@@ -43,25 +47,36 @@ class QuickDialViewModel(application: Application) : AndroidViewModel(applicatio
     private val _errorMessage = MutableLiveData<String?>(null)
     val errorMessage: LiveData<String?> = _errorMessage
 
-    fun refreshQuickDialContacts() {
+    fun refreshQuickDialContacts(forceRefresh: Boolean = true) {
         Log.d(TAG, "refreshQuickDialContacts() called")
-        _isLoading.value = true
+        // onResume and the app-foreground observer often fire together. One
+        // in-flight refresh is enough and avoids doubling all Supabase calls.
+        if (refreshJob?.isActive == true) return
+
+        val hasVisibleData = _onlineDisplayContacts.value?.isNotEmpty() == true ||
+            _allFavorites.value?.isNotEmpty() == true
+        _isLoading.value = !hasVisibleData
         _errorMessage.value = null
 
-        viewModelScope.launch {
+        refreshJob = viewModelScope.launch {
             try {
-                priorityRepository.refresh()
-                val raw = contactRepository.getAllContacts(forceRefresh = true)
+                // These sources are independent, so load them together. Presence
+                // is cached briefly and reused by the quick-dial ranking below.
+                val (raw, onlineIds) = coroutineScope {
+                    val priorityRequest = async { priorityRepository.refresh() }
+                    val contactsRequest = async { contactRepository.getAllContacts(forceRefresh) }
+                    val presenceRequest = async { presenceRepository.getOnlineUsers() }
+                    priorityRequest.await()
+                    contactsRequest.await() to presenceRequest.await().getOrDefault(emptySet())
+                }
                 priorityRepository.removeOrphans(raw.map { it.id }.toSet())
-                val onlineResult = presenceRepository.getOnlineUsers()
-                val onlineIds = onlineResult.getOrDefault(emptyList()).toSet()
 
                 allContactsList = raw.map { it.copy(isOnline = it.contactId in onlineIds, prioritySlot = priorityRepository.getSlot(it.id)) }
                 _allContacts.value = allContactsList
                 _allFavorites.value = sortedFavorites(allContactsList)
                 Log.d(TAG, "All favorites: ${_allFavorites.value?.size}")
 
-                val entries = quickDialRepository.getQuickDialEntries(forceRefresh = true)
+                val entries = quickDialRepository.getQuickDialEntries(forceRefresh = forceRefresh)
                 _onlineDisplayContacts.value = entries.map { it.contact }
                 Log.d(TAG, "Quick dial entries: ${entries.size}")
 
@@ -71,6 +86,7 @@ class QuickDialViewModel(application: Application) : AndroidViewModel(applicatio
                 _errorMessage.value = "Failed to refresh contacts: ${e.message}"
             } finally {
                 _isLoading.value = false
+                refreshJob = null
             }
         }
     }

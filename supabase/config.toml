@@ -1,0 +1,9 @@
+project_id = "vikom-app-main"
+
+# The portal uses its own ASP.NET-issued JWT rather than Supabase Auth. The
+# function therefore performs both JWT validation paths itself. This does not
+# make the endpoint public: requests without a valid patient or staff token are
+# rejected inside the function.
+[functions.call-infrastructure]
+verify_jwt = false
+

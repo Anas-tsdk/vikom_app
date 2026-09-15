@@ -25,6 +25,7 @@ import com.example.tv_caller_app.R
 import com.example.tv_caller_app.ui.adapters.ContactGridAdapter
 import com.example.tv_caller_app.domain.ContactInfo
 import com.example.tv_caller_app.ui.viewmodel.QuickDialViewModel
+import com.example.tv_caller_app.ui.activities.MainActivity
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -102,6 +103,11 @@ class QuickDialFragment : Fragment() {
         ViewCompat.setAccessibilityPaneTitle(view, getString(R.string.screen_home))
         Log.d(TAG, "onViewCreated called")
 
+        view.findViewById<TextView>(R.id.txt_screen_title).setText(R.string.tab_quick_dial)
+        view.findViewById<View>(R.id.btn_screen_back).setOnClickListener {
+            (activity as? MainActivity)?.showHome()
+        }
+
         mainGrid = view.findViewById(R.id.main_grid)
 
         setupTabs(view)
@@ -166,7 +172,14 @@ class QuickDialFragment : Fragment() {
     private fun setupGrid() {
         val isLargeScreen = resources.getBoolean(R.bool.is_large_screen)
         val isTv = (resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK) == Configuration.UI_MODE_TYPE_TELEVISION
-        val columns = 4
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        // Preserve the four-column TV layout while keeping large, readable touch
+        // targets on portrait tablets and phones.
+        val columns = when {
+            isTv || (isLargeScreen && isLandscape) -> 4
+            isLandscape -> 3
+            else -> 2
+        }
         gridColumns = columns
 
         quickDialAdapter = ContactGridAdapter(

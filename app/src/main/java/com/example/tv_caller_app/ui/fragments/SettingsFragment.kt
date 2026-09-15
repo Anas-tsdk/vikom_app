@@ -1,10 +1,13 @@
 package com.example.tv_caller_app.ui.fragments
 
-import android.app.AlertDialog
+import android.app.Dialog
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.ViewCompat
@@ -53,11 +56,12 @@ class SettingsFragment : Fragment() {
         updateAllValues()
 
         viewModel.sessionInfo.observe(viewLifecycleOwner) { info ->
-            txtSessionInfo.text = buildString {
-                append("E-post: ${info["email"]}\n")
-                append("Bekreftet: ${if (info["emailConfirmed"] == "true") "Ja" else "Nei"}\n")
-                append("Økt alder: ${info["sessionAge"]}")
-            }
+            txtSessionInfo.text = getString(
+                R.string.settings_session_info_format,
+                info["email"].orEmpty(),
+                getString(if (info["emailConfirmed"] == "true") R.string.yes else R.string.no),
+                info["sessionAge"].orEmpty()
+            )
         }
         viewModel.loadSessionInfo()
 
@@ -94,7 +98,7 @@ class SettingsFragment : Fragment() {
         }
 
         view.findViewById<TextView>(R.id.btn_go_back).setOnClickListener {
-            parentFragmentManager.popBackStack()
+            (activity as? MainActivity)?.showHome()
         }
 
         view.findViewById<TextView>(R.id.btn_logout_settings).setOnClickListener {
@@ -123,8 +127,13 @@ class SettingsFragment : Fragment() {
 
     private fun updateLanguageValue() {
         val value = when (settings.language) {
-            "en" -> "English"
-            else -> "Norsk"
+            "en" -> getString(R.string.language_english)
+            "de" -> getString(R.string.language_german)
+            "sv" -> getString(R.string.language_swedish)
+            "fi" -> getString(R.string.language_finnish)
+            "nl" -> getString(R.string.language_dutch)
+            "fr" -> getString(R.string.language_french)
+            else -> getString(R.string.language_norwegian)
         }
         txtLanguageValue.text = value
         settingLanguageLayout.contentDescription = "${getString(R.string.settings_language)}: $value"
@@ -137,22 +146,55 @@ class SettingsFragment : Fragment() {
     }
 
     private fun showLanguageDialog() {
-        val options = arrayOf("Norsk", "English")
-        val currentIndex = if (settings.language == "en") 1 else 0
+        val options = listOf(
+            "nb" to R.string.language_norwegian,
+            "en" to R.string.language_english,
+            "de" to R.string.language_german,
+            "sv" to R.string.language_swedish,
+            "fi" to R.string.language_finnish,
+            "nl" to R.string.language_dutch,
+            "fr" to R.string.language_french
+        )
 
-        AlertDialog.Builder(requireContext())
-            .setTitle(getString(R.string.settings_language))
-            .setSingleChoiceItems(options, currentIndex) { dialog, which ->
-                val newLang = if (which == 1) "en" else "nb"
-                if (newLang != settings.language) {
-                    settings.language = newLang
-                    dialog.dismiss()
-                    activity?.recreate()
-                } else {
-                    dialog.dismiss()
-                }
+        val dialog = Dialog(requireContext()).apply {
+            requestWindowFeature(Window.FEATURE_NO_TITLE)
+            setContentView(R.layout.dialog_language_selection)
+            setCanceledOnTouchOutside(false)
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
+        val container = dialog.findViewById<LinearLayout>(R.id.language_options_container)
+        var selectedRow: View? = null
+        options.forEachIndexed { index, (code, labelRes) ->
+            val row = layoutInflater.inflate(R.layout.view_language_option, container, false)
+            val selected = settings.language == code || (code == "nb" && settings.language == "no")
+            row.findViewById<TextView>(R.id.txt_language_option_label).setText(labelRes)
+            row.findViewById<TextView>(R.id.txt_language_option_check).visibility =
+                if (selected) View.VISIBLE else View.GONE
+            row.setBackgroundResource(
+                if (selected) R.drawable.language_option_selected else R.drawable.button_dialog_item
+            )
+            row.contentDescription = getString(
+                if (selected) R.string.language_selected_accessibility
+                else R.string.language_option_accessibility,
+                getString(labelRes)
+            )
+            row.layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).also { if (index > 0) it.topMargin = resources.getDimensionPixelSize(R.dimen.padding_small) }
+            row.setOnClickListener {
+                if (code != settings.language) settings.language = code
+                dialog.dismiss()
+                activity?.recreate()
             }
-            .setNegativeButton(getString(R.string.cancel), null)
-            .show()
+            container.addView(row)
+            if (selected) selectedRow = row
+        }
+        dialog.findViewById<TextView>(R.id.btn_language_cancel).setOnClickListener { dialog.dismiss() }
+        dialog.show()
+        val maxWidth = (resources.displayMetrics.widthPixels * 0.92f).toInt()
+        val preferred = (440 * resources.displayMetrics.density).toInt()
+        dialog.window?.setLayout(preferred.coerceAtMost(maxWidth), ViewGroup.LayoutParams.WRAP_CONTENT)
+        (selectedRow ?: container.getChildAt(0))?.requestFocus()
     }
 }

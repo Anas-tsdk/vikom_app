@@ -1,6 +1,8 @@
 package com.example.tv_caller_app.ui.activities
 
 import android.app.Dialog
+import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.content.res.Configuration
@@ -9,16 +11,25 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.Window
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
+import android.widget.Button
+import android.widget.ProgressBar
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.launch
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.ViewCompat
+import androidx.core.app.ActivityCompat
+import androidx.activity.OnBackPressedCallback
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import java.text.SimpleDateFormat
@@ -28,10 +39,20 @@ import androidx.core.graphics.drawable.toDrawable
 import com.example.tv_caller_app.R
 import com.example.tv_caller_app.ui.fragments.AIFragment
 import com.example.tv_caller_app.ui.fragments.HamburgerMenuFragment
+import com.example.tv_caller_app.ui.fragments.HomeFragment
+import com.example.tv_caller_app.ui.fragments.AppointmentListFragment
+import com.example.tv_caller_app.data.repository.AppointmentRepository
+import com.example.tv_caller_app.data.datasource.ProfileNotLinkedException
+import com.example.tv_caller_app.data.datasource.SessionExpiredException
+import com.example.tv_caller_app.auth.SessionManager
+import com.example.tv_caller_app.ui.viewmodel.AppointmentsViewModel
+import com.example.tv_caller_app.ui.viewmodel.AppointmentsViewModelFactory
 import com.example.tv_caller_app.ui.fragments.ProfileFragment
-import com.example.tv_caller_app.ui.fragments.QuickDialFragment
 import com.example.tv_caller_app.ui.fragments.SettingsFragment
 import com.example.tv_caller_app.settings.SettingsManager
+import com.example.tv_caller_app.domain.AppointmentEvent
+import com.example.tv_caller_app.domain.canRespond
+import com.example.tv_caller_app.ui.util.showInvitationRequiredMessage
 import com.example.tv_caller_app.ui.viewmodel.AuthViewModel
 import com.example.tv_caller_app.ui.viewmodel.CallViewModel
 
@@ -39,6 +60,15 @@ class MainActivity : FragmentActivity() {
 
     companion object {
         private const val TAG = "MainActivity"
+        private const val EXTRA_DESTINATION = "destination"
+        const val DESTINATION_APPOINTMENTS = "appointments"
+        private const val REQUEST_NOTIFICATIONS = 1201
+
+        fun createIntent(context: Context, destination: String? = null): Intent =
+            Intent(context, MainActivity::class.java).apply {
+                destination?.let { putExtra(EXTRA_DESTINATION, it) }
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            }
     }
 
     private lateinit var headerBar: RelativeLayout
@@ -46,8 +76,15 @@ class MainActivity : FragmentActivity() {
     private lateinit var txtClockTime: TextView
     private lateinit var txtClockDate: TextView
     private lateinit var authViewModel: AuthViewModel
+    private lateinit var appointmentsViewModel: AppointmentsViewModel
     private var hasCheckedOnboarding = false
     private var observedCallViewModel: CallViewModel? = null
+    private var observesAppointmentEvents = false
+    private var sessionIsValid = false
+    private var invitationGateActive = false
+    private var checkInRequestInFlight = false
+    private var dailyCheckInDialog: Dialog? = null
+    private var missedCallDialog: Dialog? = null
 
     private val clockHandler = Handler(Looper.getMainLooper())
     private val clockRunnable = object : Runnable {
@@ -70,8 +107,13 @@ class MainActivity : FragmentActivity() {
 
         val authRepository = (application as com.example.tv_caller_app.TVCallerApplication).getAuthRepository()
         authViewModel = ViewModelProvider(this, AuthViewModel.factory(authRepository))[AuthViewModel::class.java]
+        appointmentsViewModel = ViewModelProvider(
+            this,
+            AppointmentsViewModelFactory(application)
+        )[AppointmentsViewModel::class.java]
 
         observeAuthViewModel(savedInstanceState)
+        observePendingInvitations()
         observeSessionExpiry()
         setupHamburgerMenu()
         setupProfileButton()
@@ -81,6 +123,8 @@ class MainActivity : FragmentActivity() {
         clockHandler.postDelayed(clockRunnable, 30000)
         authViewModel.checkSession()
         setupAiAssistantButton()
+        findViewById<View>(R.id.header_left)?.setOnClickListener { showHome() }
+        setupBackNavigation()
         syncHeaderButtonHeights()
     }
 
@@ -104,10 +148,12 @@ class MainActivity : FragmentActivity() {
 
     private fun setupAiAssistantButton() {
         findViewById<LinearLayout>(R.id.btn_ai_assistant)?.setOnClickListener {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.main_browse_fragment, AIFragment())
-                .addToBackStack(null)
-                .commit()
+            navigateUnlessInvitationPending {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.main_browse_fragment, AIFragment())
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
     }
 
@@ -132,9 +178,100 @@ class MainActivity : FragmentActivity() {
     private fun loadMainContent(savedInstanceState: Bundle?) {
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.main_browse_fragment, QuickDialFragment())
+                .replace(R.id.main_browse_fragment, HomeFragment())
                 .commitNow()
+            openIntentDestination(intent)
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        openIntentDestination(intent)
+    }
+
+    private fun openIntentDestination(intent: Intent) {
+        if (intent.getStringExtra(EXTRA_DESTINATION) != DESTINATION_APPOINTMENTS) return
+        if (invitationGateActive) {
+            showHomeContent()
+            showInvitationReminder()
+            intent.removeExtra(EXTRA_DESTINATION)
+            return
+        }
+        if (supportFragmentManager.findFragmentById(R.id.main_browse_fragment) is AppointmentListFragment) return
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.main_browse_fragment, AppointmentListFragment())
+            .addToBackStack(null)
+            .commit()
+        intent.removeExtra(EXTRA_DESTINATION)
+    }
+
+    private fun requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                REQUEST_NOTIFICATIONS
+            )
+        }
+    }
+
+    private fun observeAppointmentEvents() {
+        if (observesAppointmentEvents) return
+        observesAppointmentEvents = true
+        val app = application as com.example.tv_caller_app.TVCallerApplication
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                app.getAppointmentEventFlow().collect { event ->
+                    AppointmentRepository.getInstance(
+                        SessionManager.getInstance(this@MainActivity),
+                        app.getAuthRepository()
+                    ).invalidateCache()
+                    appointmentsViewModel.load(forceRefresh = true)
+
+                    if (sessionIsValid && event.isPendingInvitation() && !isCallInProgress()) {
+                        setInvitationGate(true)
+                        showHomeContent()
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * A pending invitation is a top-level task, not something the patient has to
+     * discover in a submenu. The first unanswered future appointment is opened
+     * after every fresh launch; realtime events use the same screen immediately.
+     */
+    private fun observePendingInvitations() {
+        appointmentsViewModel.uiState.observe(this) { state ->
+            when (state) {
+                is com.example.tv_caller_app.ui.viewmodel.AppointmentsUiState.Content -> {
+                    val hasPendingInvitation = state.appointments
+                        .asSequence()
+                        .filter { it.canRespond() }
+                        .any()
+                    setInvitationGate(hasPendingInvitation)
+                    if (hasPendingInvitation && !isCallInProgress()) showHomeContent()
+                }
+                is com.example.tv_caller_app.ui.viewmodel.AppointmentsUiState.Empty,
+                is com.example.tv_caller_app.ui.viewmodel.AppointmentsUiState.NotLinked,
+                is com.example.tv_caller_app.ui.viewmodel.AppointmentsUiState.NotConfigured,
+                is com.example.tv_caller_app.ui.viewmodel.AppointmentsUiState.SessionExpired -> {
+                    setInvitationGate(false)
+                }
+                else -> Unit
+            }
+        }
+    }
+
+    private fun AppointmentEvent.isPendingInvitation(): Boolean {
+        return appointmentId > 0 &&
+            status.equals("Booked", ignoreCase = true) &&
+            patientResponseStatus.equals("Pending", ignoreCase = true)
     }
 
     private fun observeIncomingCalls() {
@@ -153,6 +290,7 @@ class MainActivity : FragmentActivity() {
         if (callViewModel === observedCallViewModel) return
 
         observedCallViewModel?.callState?.removeObservers(this)
+        observedCallViewModel?.missedCall?.removeObservers(this)
         observedCallViewModel = callViewModel
         Log.d(TAG, "Attaching call state observer to CallViewModel instance")
 
@@ -192,6 +330,48 @@ class MainActivity : FragmentActivity() {
                 }
             }
         }
+
+        callViewModel.missedCall.observe(this) { notice ->
+            if (notice != null && !isCallInProgress()) {
+                showMissedCallDialog(notice)
+            }
+        }
+    }
+
+    private fun showMissedCallDialog(notice: CallViewModel.MissedCallNotice) {
+        missedCallDialog?.dismiss()
+        val dialog = Dialog(this).apply {
+            requestWindowFeature(Window.FEATURE_NO_TITLE)
+            setContentView(R.layout.dialog_logout_confirm)
+            window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
+            setCancelable(false)
+            setCanceledOnTouchOutside(false)
+        }
+        dialog.findViewById<TextView>(R.id.dialog_icon).text = "☎"
+        dialog.findViewById<TextView>(R.id.dialog_title).setText(R.string.missed_call_title)
+        dialog.findViewById<TextView>(R.id.dialog_message).text = getString(
+            if (notice.mediaType.equals("video", ignoreCase = true)) {
+                R.string.missed_video_call_message
+            } else {
+                R.string.missed_audio_call_message
+            },
+            notice.callerName.ifBlank { getString(R.string.unknown_contact) }
+        )
+        val okay = dialog.findViewById<TextView>(R.id.btn_confirm)
+        val secondary = dialog.findViewById<TextView>(R.id.btn_cancel)
+        okay.setText(R.string.ok)
+        secondary.visibility = View.GONE
+        okay.setOnClickListener {
+            observedCallViewModel?.clearMissedCallNotice()
+            dialog.dismiss()
+        }
+        dialog.setOnDismissListener { if (missedCallDialog === dialog) missedCallDialog = null }
+        missedCallDialog = dialog
+        dialog.show()
+        val maxWidth = (resources.displayMetrics.widthPixels * 0.9f).toInt()
+        val preferred = resources.getDimensionPixelSize(R.dimen.dialog_width)
+        dialog.window?.setLayout(preferred.coerceAtMost(maxWidth), ViewGroup.LayoutParams.WRAP_CONTENT)
+        okay.requestFocus()
     }
 
     private fun observeSessionExpiry() {
@@ -241,8 +421,10 @@ class MainActivity : FragmentActivity() {
                 btnAiAssistant?.visibility = View.GONE
 
                 btnHamburger.setOnClickListener {
-                    Log.d(TAG, "Hamburger menu clicked")
-                    HamburgerMenuFragment().show(supportFragmentManager, "hamburger_menu")
+                    navigateUnlessInvitationPending {
+                        Log.d(TAG, "Hamburger menu clicked")
+                        HamburgerMenuFragment().show(supportFragmentManager, "hamburger_menu")
+                    }
                 }
             }
         }
@@ -250,21 +432,25 @@ class MainActivity : FragmentActivity() {
 
     private fun setupProfileButton() {
         findViewById<LinearLayout>(R.id.btn_profile)?.setOnClickListener {
-            Log.d(TAG, "Profile button clicked")
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.main_browse_fragment, ProfileFragment())
-                .addToBackStack(null)
-                .commit()
+            navigateUnlessInvitationPending {
+                Log.d(TAG, "Profile button clicked")
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.main_browse_fragment, ProfileFragment())
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
     }
 
     private fun setupSettingsButton() {
         findViewById<LinearLayout>(R.id.btn_settings)?.setOnClickListener {
-            Log.d(TAG, "Settings button clicked")
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.main_browse_fragment, SettingsFragment())
-                .addToBackStack(null)
-                .commit()
+            navigateUnlessInvitationPending {
+                Log.d(TAG, "Settings button clicked")
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.main_browse_fragment, SettingsFragment())
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
     }
 
@@ -283,9 +469,10 @@ class MainActivity : FragmentActivity() {
             when (isValid) {
                 true -> {
                     Log.d(TAG, "Valid session - loading main content")
+                    sessionIsValid = true
                     authViewModel.cachedUsername.observe(this) { username ->
                         if (!username.isNullOrBlank()) {
-                            txtWelcome.text = "Hei, $username!"
+                            txtWelcome.text = getString(R.string.welcome_named_user, username)
                         }
                     }
                     if (!hasCheckedOnboarding) {
@@ -296,7 +483,9 @@ class MainActivity : FragmentActivity() {
                             if (!hasSeen && !isFinishing && !isDestroyed) {
                                 Handler(Looper.getMainLooper()).postDelayed({
                                     if (!isFinishing && !isDestroyed) {
-                                        startActivity(OnboardingActivity.createIntent(this@MainActivity))
+                                        if (!invitationGateActive && dailyCheckInDialog?.isShowing != true) {
+                                            startActivity(OnboardingActivity.createIntent(this@MainActivity))
+                                        }
                                     }
                                 }, 1500L)
                             }
@@ -307,9 +496,14 @@ class MainActivity : FragmentActivity() {
                     app.initializeCallViewModel()
                     com.example.tv_caller_app.calling.service.SignalingForegroundService.startService(this)
                     observeIncomingCalls()
+                    observeAppointmentEvents()
+                    requestNotificationPermissionIfNeeded()
                     loadMainContent(savedInstanceState)
+                    appointmentsViewModel.load(forceRefresh = true)
+                    checkDailySafetyStatus()
                 }
                 false -> {
+                    sessionIsValid = false
                     Log.d(TAG, "No valid session - redirecting to AuthActivity")
                     redirectToAuth()
                 }
@@ -338,8 +532,8 @@ class MainActivity : FragmentActivity() {
 
     fun showLogoutConfirmDialog() {
         showConfirmDialog(
-            title = "Utloggingsbekreftelse",
-            message = "Er du sikker på at du vil logge ut ?",
+            title = getString(R.string.logout_confirm_title),
+            message = getString(R.string.logout_confirm_message),
             icon = "⚠️",
             onConfirm = { performLogout() }
         )
@@ -380,7 +574,10 @@ class MainActivity : FragmentActivity() {
 
     private fun performLogout() {
         Log.d(TAG, "Performing logout")
-        authViewModel.logout()
+        lifecycleScope.launch {
+            (application as com.example.tv_caller_app.TVCallerApplication).clearFcmToken()
+            authViewModel.logout()
+        }
     }
 
     fun showHeader() {
@@ -391,10 +588,216 @@ class MainActivity : FragmentActivity() {
         headerBar.visibility = View.GONE
     }
 
+    /** Returns to the simple patient home from any main-area screen. */
+    fun showHome() {
+        if (invitationGateActive) {
+            showHomeContent()
+            showInvitationReminder()
+            return
+        }
+        showHomeContent()
+    }
+
+    private fun showHomeContent() {
+        supportFragmentManager.popBackStackImmediate(
+            null,
+            androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
+        )
+        if (supportFragmentManager.findFragmentById(R.id.main_browse_fragment) !is HomeFragment) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.main_browse_fragment, HomeFragment())
+                .commit()
+        }
+        showHeader()
+    }
+
+    fun setInvitationGate(active: Boolean) {
+        invitationGateActive = active
+        if (this::headerBar.isInitialized) {
+            findViewById<View>(R.id.header_left)?.alpha = if (active) 0.55f else 1f
+            findViewById<View>(R.id.header_right)?.alpha = if (active) 0.55f else 1f
+        }
+    }
+
+    fun showInvitationReminder() {
+        showInvitationRequiredMessage(this)
+    }
+
+    private fun navigateUnlessInvitationPending(action: () -> Unit) {
+        if (invitationGateActive) showInvitationReminder() else action()
+    }
+
+    private fun isCallInProgress(): Boolean = when (
+        (application as? com.example.tv_caller_app.TVCallerApplication)
+            ?.getCallViewModel()?.callState?.value
+    ) {
+        is CallViewModel.CallState.Initiating,
+        is CallViewModel.CallState.RingingOutgoing,
+        is CallViewModel.CallState.RingingIncoming,
+        is CallViewModel.CallState.Connecting,
+        is CallViewModel.CallState.Connected,
+        is CallViewModel.CallState.Ending -> true
+        else -> false
+    }
+
+    private fun checkDailySafetyStatus() {
+        if (!sessionIsValid || checkInRequestInFlight || isCallInProgress()) {
+            return
+        }
+        val session = SessionManager.getInstance(this)
+
+        // A previously confirmed web patient is blocked immediately on later
+        // launches. New/unlinked accounts are checked quietly so ordinary ViKom
+        // users never see a patient-only prompt.
+        if (session.dailyCheckInRequired() == true) {
+            showDailyCheckInDialog(checkingStatus = true)
+        }
+
+        checkInRequestInFlight = true
+        lifecycleScope.launch {
+            val result = (application as com.example.tv_caller_app.TVCallerApplication)
+                .getDailyCheckInRepository()
+                .getStatus()
+            checkInRequestInFlight = false
+
+            val failure = result.exceptionOrNull()
+            if (failure is ProfileNotLinkedException) {
+                session.saveDailyCheckInRequired(false)
+                dailyCheckInDialog?.dismiss()
+                return@launch
+            }
+            if (failure is SessionExpiredException) {
+                dailyCheckInDialog?.dismiss()
+                return@launch
+            }
+
+            if (failure != null) {
+                // Fail closed only for an account already known to be a patient.
+                // For an ordinary/unknown account, a backend outage must not add
+                // a patient restriction to the rest of ViKom.
+                if (session.dailyCheckInRequired() == true) {
+                    prepareDailyCheckInConfirmation(getString(R.string.daily_check_in_error))
+                } else {
+                    dailyCheckInDialog?.dismiss()
+                }
+                return@launch
+            }
+
+            val status = result.getOrThrow()
+            session.saveDailyCheckInRequired(status.required)
+            val confirmationNeeded = status.required && !status.checkedInToday
+
+            if (!confirmationNeeded) {
+                dailyCheckInDialog?.dismiss()
+            } else if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                prepareDailyCheckInConfirmation(errorMessage = null)
+            }
+        }
+    }
+
+    private fun showDailyCheckInDialog(checkingStatus: Boolean = false) {
+        if (dailyCheckInDialog?.isShowing == true) {
+            if (checkingStatus) {
+                dailyCheckInDialog?.findViewById<Button>(R.id.btn_confirm_daily_check_in)?.isEnabled = false
+                dailyCheckInDialog?.findViewById<ProgressBar>(R.id.check_in_progress)?.visibility = View.VISIBLE
+                dailyCheckInDialog?.findViewById<TextView>(R.id.txt_check_in_error)?.visibility = View.GONE
+            }
+            return
+        }
+
+        val dialog = Dialog(this).apply {
+            requestWindowFeature(Window.FEATURE_NO_TITLE)
+            setContentView(R.layout.dialog_daily_check_in)
+            window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
+            setCancelable(false)
+            setCanceledOnTouchOutside(false)
+        }
+        val button = dialog.findViewById<Button>(R.id.btn_confirm_daily_check_in)
+        val progress = dialog.findViewById<ProgressBar>(R.id.check_in_progress)
+        val error = dialog.findViewById<TextView>(R.id.txt_check_in_error)
+
+        button.isEnabled = !checkingStatus
+        progress.visibility = if (checkingStatus) View.VISIBLE else View.GONE
+        error.visibility = View.GONE
+
+        button.setOnClickListener {
+            button.isEnabled = false
+            error.visibility = View.GONE
+            progress.visibility = View.VISIBLE
+            lifecycleScope.launch {
+                val result = (application as com.example.tv_caller_app.TVCallerApplication)
+                    .getDailyCheckInRepository()
+                    .confirmToday()
+                progress.visibility = View.GONE
+                val status = result.getOrNull()
+                if (status != null && (!status.required || status.checkedInToday)) {
+                    SessionManager.getInstance(this@MainActivity)
+                        .saveDailyCheckInRequired(status.required)
+                    dialog.dismiss()
+                } else {
+                    error.setText(R.string.daily_check_in_error)
+                    error.visibility = View.VISIBLE
+                    button.isEnabled = true
+                    button.requestFocus()
+                }
+            }
+        }
+
+        dialog.setOnDismissListener { dailyCheckInDialog = null }
+        dailyCheckInDialog = dialog
+        dialog.show()
+        val maxWidth = (resources.displayMetrics.widthPixels * 0.9f).toInt()
+        val preferred = (560 * resources.displayMetrics.density).toInt()
+        dialog.window?.setLayout(preferred.coerceAtMost(maxWidth), ViewGroup.LayoutParams.WRAP_CONTENT)
+        button.requestFocus()
+    }
+
+    private fun prepareDailyCheckInConfirmation(errorMessage: String?) {
+        val dialog = dailyCheckInDialog ?: run {
+            showDailyCheckInDialog()
+            dailyCheckInDialog
+        } ?: return
+
+        dialog.findViewById<ProgressBar>(R.id.check_in_progress).visibility = View.GONE
+        dialog.findViewById<TextView>(R.id.txt_check_in_error).apply {
+            text = errorMessage ?: getString(R.string.daily_check_in_error)
+            visibility = if (errorMessage != null) View.VISIBLE else View.GONE
+        }
+        dialog.findViewById<Button>(R.id.btn_confirm_daily_check_in).apply {
+            isEnabled = true
+            requestFocus()
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         checkForActiveCall()
         observeIncomingCalls()
+        if (sessionIsValid) {
+            appointmentsViewModel.load(forceRefresh = true)
+            checkDailySafetyStatus()
+        }
+    }
+
+    private fun setupBackNavigation() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (invitationGateActive) {
+                    showHomeContent()
+                    showInvitationReminder()
+                    return
+                }
+
+                // Delegate to the normal FragmentActivity behavior while this
+                // callback is temporarily out of the dispatcher chain.
+                isEnabled = false
+                try {
+                    onBackPressedDispatcher.onBackPressed()
+                } finally {
+                    isEnabled = true
+                }
+            }
+        })
     }
 
     private fun checkForActiveCall() {
@@ -433,6 +836,8 @@ class MainActivity : FragmentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         clockHandler.removeCallbacks(clockRunnable)
+        dailyCheckInDialog?.dismiss()
+        dailyCheckInDialog = null
         Log.d(TAG, "MainActivity being destroyed")
     }
 }

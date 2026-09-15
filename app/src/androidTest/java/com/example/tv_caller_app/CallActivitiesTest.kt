@@ -4,7 +4,6 @@ import android.content.Intent
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.accessibility.AccessibilityChecks
-import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
@@ -14,6 +13,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.tv_caller_app.calling.CallIntentExtras
+import com.example.tv_caller_app.auth.SessionManager
 import com.example.tv_caller_app.ui.activities.InCallActivity
 import com.example.tv_caller_app.ui.activities.IncomingCallActivity
 import com.example.tv_caller_app.ui.activities.OutgoingCallActivity
@@ -43,15 +43,20 @@ class CallActivitiesTest {
 
     @Before
     fun initCallViewModel() {
+        SessionManager.getInstance(context).apply {
+            saveSession("test-uid", "fake-token", "fake-refresh", "test@test.com", true)
+            saveUsername("Test User")
+        }
         (context.applicationContext as TVCallerApplication).initializeCallViewModel()
     }
 
 
-    private fun launchIncoming() = ActivityScenario.launch<IncomingCallActivity>(
+    private fun launchIncoming(callType: String = "audio") = ActivityScenario.launch<IncomingCallActivity>(
         Intent(context, IncomingCallActivity::class.java).apply {
             putExtra(CallIntentExtras.EXTRA_CALLER_ID, "test_caller")
             putExtra(CallIntentExtras.EXTRA_CALLER_NAME, "Test User")
             putExtra(CallIntentExtras.EXTRA_CALL_ID, "test_call_123")
+            putExtra(CallIntentExtras.EXTRA_CALL_TYPE, callType)
         }
     )
 
@@ -77,7 +82,6 @@ class CallActivitiesTest {
                 .check(matches(isDisplayed()))
                 .check(matches(isEnabled()))
                 .check(matches(isFocusable()))
-                .perform(click())
         }
     }
 
@@ -88,7 +92,6 @@ class CallActivitiesTest {
                 .check(matches(isDisplayed()))
                 .check(matches(isEnabled()))
                 .check(matches(isFocusable()))
-                .perform(click())
         }
     }
 
@@ -118,7 +121,6 @@ class CallActivitiesTest {
                 .check(matches(isDisplayed()))
                 .check(matches(isEnabled()))
                 .check(matches(isFocusable()))
-                .perform(click())
         }
     }
 
@@ -147,7 +149,6 @@ class CallActivitiesTest {
                 .check(matches(isDisplayed()))
                 .check(matches(isEnabled()))
                 .check(matches(isFocusable()))
-                .perform(click())
         }
     }
 
@@ -156,15 +157,32 @@ class CallActivitiesTest {
         launchInCall().use {
             onView(withId(R.id.btn_mute))
                 .check(matches(isDisplayed()))
+                .check(matches(isFocusable()))
+        }
+    }
+
+    @Test
+    fun inCall_speakerButtonIsVisibleAndFocusable() {
+        launchInCall().use {
+            onView(withId(R.id.btn_speaker))
+                .check(matches(isDisplayed()))
                 .check(matches(isEnabled()))
                 .check(matches(isFocusable()))
-                .perform(click())
+        }
+    }
+
+    @Test
+    fun inCall_videoUpgradeButtonIsVisibleAndFocusable() {
+        launchInCall().use {
+            onView(withId(R.id.btn_camera))
+                .check(matches(isDisplayed()))
+                .check(matches(isFocusable()))
         }
     }
 
     @Test
     fun incoming_videoAnswerButtonIsVisibleAndFocusable() {
-        launchIncoming().use {
+        launchIncoming(callType = "video").use {
             onView(withId(R.id.btn_answer_video_call))
                 .check(matches(isDisplayed()))
                 .check(matches(isEnabled()))

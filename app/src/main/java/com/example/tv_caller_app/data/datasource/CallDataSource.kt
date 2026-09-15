@@ -8,6 +8,7 @@ import com.example.tv_caller_app.calling.signaling.SignalingEvent
 import com.example.tv_caller_app.calling.signaling.SignalingService
 import com.example.tv_caller_app.calling.webrtc.MicrophoneMode
 import com.example.tv_caller_app.calling.webrtc.WebRTCManager
+import com.example.tv_caller_app.domain.AppointmentEvent
 import org.webrtc.IceCandidate
 import org.webrtc.PeerConnection
 import org.webrtc.SurfaceViewRenderer
@@ -65,7 +66,6 @@ class CallDataSource(
         onLocalVideoActive: ((Boolean) -> Unit)? = null,
         onRemoteVideoActive: ((Boolean) -> Unit)? = null
     ) {
-        webRTCManager.onMicrophoneModeChanged = null 
         webRTCManager.onLocalVideoTrack = { track: VideoTrack ->
             localVideoTrack = track
             onLocalVideoActive?.invoke(true)
@@ -81,7 +81,11 @@ class CallDataSource(
         val r = renderer as? SurfaceViewRenderer ?: return
         try {
             r.init(webRTCManager.eglBase.eglBaseContext, null)
-            r.setScalingType(org.webrtc.RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+            r.setEnableHardwareScaler(true)
+            r.setScalingType(
+                if (mirror) org.webrtc.RendererCommon.ScalingType.SCALE_ASPECT_FIT
+                else org.webrtc.RendererCommon.ScalingType.SCALE_ASPECT_FILL
+            )
             r.setMirror(mirror)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to init video renderer", e)
@@ -116,13 +120,17 @@ class CallDataSource(
 
 
     fun hasCamera(): Boolean = webRTCManager.hasCamera()
+    fun hasMultipleCameras(): Boolean = webRTCManager.hasMultipleCameras()
+    fun recheckMicrophoneAvailability(): MicrophoneMode = webRTCManager.recheckMicrophoneAvailability()
     fun setVideoEnabled(enabled: Boolean) = webRTCManager.setVideoEnabled(enabled)
     fun startVideoCapture() = webRTCManager.startVideoCapture()
     fun stopVideoCapture() = webRTCManager.stopVideoCapture()
+    fun switchCamera(onComplete: (success: Boolean, frontFacing: Boolean) -> Unit) =
+        webRTCManager.switchCamera(onComplete)
     fun mute() = webRTCManager.mute()
     fun unmute() = webRTCManager.unmute()
-    fun enableSpeaker() = webRTCManager.enableSpeaker()
-    fun disableSpeaker() = webRTCManager.disableSpeaker()
+    fun enableSpeaker() = audioRouteManager.enableSpeaker()
+    fun disableSpeaker() = audioRouteManager.disableSpeaker()
     suspend fun createOffer(): String = webRTCManager.createOffer()
     suspend fun createAnswer(offerSdp: String): String = webRTCManager.createAnswer(offerSdp)
     suspend fun handleAnswer(answerSdp: String): Result<Unit> = webRTCManager.handleAnswer(answerSdp)
@@ -133,38 +141,51 @@ class CallDataSource(
 
 
 
-    var onSignalingIncomingCall: (suspend (callerId: String, callerUserId: String, callerName: String, callerUsername: String, offer: String, mediaType: String) -> Unit)? = null
-    var onSignalingCallAnswered: ((answer: String) -> Unit)? = null
-    var onSignalingNewIceCandidate: ((candidate: String, sdpMid: String?, sdpMLineIndex: Int?) -> Unit)? = null
-    var onSignalingCallRejected: ((reason: String) -> Unit)? = null
-    var onSignalingCallEnded: ((reason: String, duration: Long) -> Unit)? = null
-    var onSignalingRemoteCameraStateChanged: ((enabled: Boolean) -> Unit)? = null
-    var onSignalingCallAnsweredElsewhere: (() -> Unit)? = null
+    var onSignalingIncomingCall: (suspend (callId: String, callerId: String, callerUserId: String, callerName: String, callerUsername: String, offer: String, mediaType: String) -> Unit)? = null
+    var onSignalingCallAnswered: ((callId: String, answer: String) -> Unit)? = null
+    var onSignalingNewIceCandidate: ((callId: String, candidate: String, sdpMid: String?, sdpMLineIndex: Int?) -> Unit)? = null
+    var onSignalingCallRejected: ((callId: String, reason: String) -> Unit)? = null
+    var onSignalingCallEnded: ((callId: String, reason: String, duration: Long) -> Unit)? = null
+    var onSignalingRemoteCameraStateChanged: ((callId: String, enabled: Boolean) -> Unit)? = null
+    var onSignalingVideoUpgradeRequested: ((callId: String) -> Unit)? = null
+    var onSignalingVideoUpgradeResponded: ((callId: String, accepted: Boolean) -> Unit)? = null
+    var onSignalingMissedCall: ((callId: String, callerName: String, mediaType: String, timestamp: Long) -> Unit)? = null
+    var onSignalingCallAnsweredElsewhere: ((callId: String) -> Unit)? = null
     var onSignalingError: ((message: String, exception: Throwable?) -> Unit)? = null
     var onSignalingConnected: (() -> Unit)? = null
     var onSignalingDisconnected: (() -> Unit)? = null
+    var onAppointmentChanged: ((AppointmentEvent) -> Unit)? = null
 
 
 
     suspend fun initializeSignaling() = signalingService.initialize()
 
+    suspend fun refreshTurnConfiguration(): Boolean =
+        signalingService.refreshTurnConfiguration()
+
     suspend fun observeSignalingEvents() {
         signalingService.events.collect { event ->
             when (event) {
                 is SignalingEvent.IncomingCall ->
-                    onSignalingIncomingCall?.invoke(event.callerId, event.callerUserId, event.callerName, event.callerUsername, event.offer, event.mediaType)
+                    onSignalingIncomingCall?.invoke(event.callId, event.callerId, event.callerUserId, event.callerName, event.callerUsername, event.offer, event.mediaType)
                 is SignalingEvent.CallAnswered ->
-                    onSignalingCallAnswered?.invoke(event.answer)
+                    onSignalingCallAnswered?.invoke(event.callId, event.answer)
                 is SignalingEvent.NewIceCandidate ->
-                    onSignalingNewIceCandidate?.invoke(event.candidate, event.sdpMid, event.sdpMLineIndex)
+                    onSignalingNewIceCandidate?.invoke(event.callId, event.candidate, event.sdpMid, event.sdpMLineIndex)
                 is SignalingEvent.CallRejected ->
-                    onSignalingCallRejected?.invoke(event.reason)
+                    onSignalingCallRejected?.invoke(event.callId, event.reason)
                 is SignalingEvent.CallEnded ->
-                    onSignalingCallEnded?.invoke(event.reason, event.duration)
+                    onSignalingCallEnded?.invoke(event.callId, event.reason, event.duration)
                 is SignalingEvent.RemoteCameraStateChanged ->
-                    onSignalingRemoteCameraStateChanged?.invoke(event.enabled)
+                    onSignalingRemoteCameraStateChanged?.invoke(event.callId, event.enabled)
+                is SignalingEvent.VideoUpgradeRequested ->
+                    onSignalingVideoUpgradeRequested?.invoke(event.callId)
+                is SignalingEvent.VideoUpgradeResponded ->
+                    onSignalingVideoUpgradeResponded?.invoke(event.callId, event.accepted)
+                is SignalingEvent.MissedCall ->
+                    onSignalingMissedCall?.invoke(event.callId, event.callerName, event.mediaType, event.timestamp)
                 is SignalingEvent.CallAnsweredElsewhere ->
-                    onSignalingCallAnsweredElsewhere?.invoke()
+                    onSignalingCallAnsweredElsewhere?.invoke(event.callId)
                 is SignalingEvent.Error ->
                     onSignalingError?.invoke(event.message, event.exception)
                 is SignalingEvent.Connected -> {
@@ -175,42 +196,50 @@ class CallDataSource(
                     Log.d(TAG, "Signaling disconnected")
                     onSignalingDisconnected?.invoke()
                 }
+                is SignalingEvent.AppointmentChanged ->
+                    onAppointmentChanged?.invoke(event.appointment)
             }
         }
     }
 
-    suspend fun sendCallOffer(targetUserId: String, callerName: String, callerUsername: String, offer: String, mediaType: String = "audio") =
-        signalingService.sendCallOffer(targetUserId, callerName, callerUsername, offer, mediaType)
+    suspend fun sendCallOffer(callId: String, targetUserId: String, callerName: String, callerUsername: String, offer: String, mediaType: String = "audio") =
+        signalingService.sendCallOffer(callId, targetUserId, callerName, callerUsername, offer, mediaType)
 
-    suspend fun sendCallAnswer(callerId: String, calleeName: String, answer: String) =
-        signalingService.sendCallAnswer(callerId, calleeName, answer)
+    suspend fun sendCallAnswer(callId: String, callerId: String, calleeName: String, answer: String) =
+        signalingService.sendCallAnswer(callId, callerId, calleeName, answer)
 
-    suspend fun notifyAnsweredElsewhere(ownUserId: String) =
-        signalingService.notifyAnsweredElsewhere(ownUserId)
+    suspend fun notifyAnsweredElsewhere(callId: String, ownUserId: String) =
+        signalingService.notifyAnsweredElsewhere(callId, ownUserId)
 
-    suspend fun rejectCall(callerId: String, reason: String) =
-        signalingService.rejectCall(callerId, reason)
+    suspend fun rejectCall(callId: String, callerId: String, reason: String) =
+        signalingService.rejectCall(callId, callerId, reason)
 
-    suspend fun endCall(otherUserId: String, reason: String, duration: Long) =
-        signalingService.endCall(otherUserId, reason, duration)
+    suspend fun endCall(callId: String, otherUserId: String, reason: String, duration: Long) =
+        signalingService.endCall(callId, otherUserId, reason, duration)
 
-    suspend fun sendIceCandidate(targetUserId: String, candidate: String, sdpMid: String?, sdpMLineIndex: Int?) =
-        signalingService.sendIceCandidate(targetUserId, candidate, sdpMid, sdpMLineIndex)
+    suspend fun sendIceCandidate(callId: String, targetUserId: String, candidate: String, sdpMid: String?, sdpMLineIndex: Int?) =
+        signalingService.sendIceCandidate(callId, targetUserId, candidate, sdpMid, sdpMLineIndex)
 
-    suspend fun sendCameraState(targetUserId: String, enabled: Boolean) =
-        signalingService.sendCameraState(targetUserId, enabled)
+    suspend fun sendCameraState(callId: String, targetUserId: String, enabled: Boolean) =
+        signalingService.sendCameraState(callId, targetUserId, enabled)
+
+    suspend fun requestVideoUpgrade(callId: String, targetUserId: String) =
+        signalingService.requestVideoUpgrade(callId, targetUserId)
+
+    suspend fun respondToVideoUpgrade(callId: String, targetUserId: String, accepted: Boolean) =
+        signalingService.respondToVideoUpgrade(callId, targetUserId, accepted)
 
     suspend fun cleanupSignaling() = signalingService.cleanup()
 
 
 
-    fun startCallAudio() = audioRouteManager.startCallAudio()
+    fun startCallAudio(preferSpeaker: Boolean = false) = audioRouteManager.startCallAudio(preferSpeaker)
     fun stopCallAudio() = audioRouteManager.stopCallAudio()
 
 
 
-    fun startCallNotification(contactName: String, isIncoming: Boolean) =
-        callNotificationDataSource.startService(contactName, isIncoming)
+    fun startCallNotification(contactName: String, isIncoming: Boolean, mediaType: String) =
+        callNotificationDataSource.startService(contactName, isIncoming, mediaType)
 
     fun stopCallNotification() = callNotificationDataSource.stopService()
 

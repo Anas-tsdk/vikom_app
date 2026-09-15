@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="hero_time_size">64sp</dimen>
+    <dimen name="home_tile_icon">52dp</dimen>
+</resources>

@@ -91,7 +91,6 @@ class AuthRepository private constructor(
                     email = userEmail,
                     emailConfirmed = true
                 )
-
                 Log.d(TAG, "Sign in successful for user: $userId")
                 Result.success(Unit)
             } catch (e: Exception) {

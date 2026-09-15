@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/topic_help"
+    style="@style/VK.HomeTile"
+    android:layout_height="match_parent"
+    android:contentDescription="@string/ai_topic_help"
+    android:gravity="center_vertical">
+
+    <ImageView style="@style/VK.HomeTile.Icon" android:contentDescription="@null" android:importantForAccessibility="no" android:src="@drawable/ic_acc_sos" />
+    <TextView style="@style/VK.HomeTile.Label" android:text="@string/ai_topic_help" />
+    <TextView style="@style/VK.HomeTile.Sub" android:maxLines="2" android:text="@string/ai_emergency_summary" />
+</LinearLayout>

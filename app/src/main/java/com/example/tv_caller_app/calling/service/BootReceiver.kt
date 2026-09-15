@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.example.tv_caller_app.auth.SessionManager
-import com.example.tv_caller_app.ui.activities.MainActivity
 
 class BootReceiver : BroadcastReceiver() {
 
@@ -22,11 +21,7 @@ class BootReceiver : BroadcastReceiver() {
             return
         }
 
-        Log.i(TAG, "Boot completed — launching app and starting SignalingForegroundService")
+        Log.i(TAG, "Boot completed — restoring background call listening")
         SignalingForegroundService.startService(context)
-        val launchIntent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
-        context.startActivity(launchIntent)
     }
 }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/topic_daily"
+    style="@style/VK.HomeTile"
+    android:layout_height="match_parent"
+    android:contentDescription="@string/ai_topic_daily_tasks"
+    android:gravity="center_vertical">
+
+    <ImageView style="@style/VK.HomeTile.Icon" android:contentDescription="@null" android:importantForAccessibility="no" android:src="@drawable/ic_acc_daily" />
+    <TextView style="@style/VK.HomeTile.Label" android:text="@string/ai_topic_daily_tasks" />
+    <TextView android:id="@+id/txt_daily_summary" style="@style/VK.HomeTile.Sub" android:maxLines="2" />
+</LinearLayout>

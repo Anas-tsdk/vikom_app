@@ -55,9 +55,14 @@ class QuickDialFragmentTest {
         android.content.Intent(context, MainActivity::class.java)
     )
 
+    private fun openQuickDial() {
+        onView(withId(R.id.tile_contacts)).perform(click())
+    }
+
     @Test
     fun quickDialTabIsVisibleAndFocusable() {
         launch().use {
+            openQuickDial()
             onView(withId(R.id.tab_quick_dial))
                 .check(matches(isDisplayed()))
                 .check(matches(isFocusable()))
@@ -67,6 +72,7 @@ class QuickDialFragmentTest {
     @Test
     fun contactsTabIsVisibleAndFocusable() {
         launch().use {
+            openQuickDial()
             onView(withId(R.id.tab_contacts))
                 .check(matches(isDisplayed()))
                 .check(matches(isFocusable()))
@@ -76,6 +82,7 @@ class QuickDialFragmentTest {
     @Test
     fun mainGridIsVisible() {
         launch().use {
+            openQuickDial()
             onView(withId(R.id.main_grid)).check(matches(isDisplayed()))
         }
     }
@@ -83,6 +90,7 @@ class QuickDialFragmentTest {
     @Test
     fun statusHeaderIsVisible() {
         launch().use {
+            openQuickDial()
             onView(withId(R.id.txt_status)).check(matches(isDisplayed()))
         }
     }
@@ -90,6 +98,7 @@ class QuickDialFragmentTest {
     @Test
     fun contactsTabNavigatesToAllContacts() {
         launch().use {
+            openQuickDial()
             onView(withId(R.id.tab_contacts)).perform(click())
             onView(withId(R.id.search_input)).check(matches(isDisplayed()))
         }
@@ -98,6 +107,7 @@ class QuickDialFragmentTest {
     @Test
     fun manageFavoritesButtonIsVisibleAndFocusable() {
         launch().use {
+            openQuickDial()
             onView(withId(R.id.btn_manage_favorites))
                 .check(matches(isDisplayed()))
                 .check(matches(isFocusable()))

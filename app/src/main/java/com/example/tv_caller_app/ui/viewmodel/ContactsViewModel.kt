@@ -30,6 +30,10 @@ class ContactsViewModel(application: Application) : AndroidViewModel(application
     private val _displayedContacts = MutableLiveData<List<ContactInfo>>()
     val displayedContacts: LiveData<List<ContactInfo>> = _displayedContacts
 
+    /** Total contacts before the contacts-screen search filter is applied. */
+    private val _totalContactCount = MutableLiveData(0)
+    val totalContactCount: LiveData<Int> = _totalContactCount
+
     private val _searchResults = MutableLiveData<List<UserSearchResult>>()
     val searchResults: LiveData<List<UserSearchResult>> = _searchResults
 
@@ -54,6 +58,7 @@ class ContactsViewModel(application: Application) : AndroidViewModel(application
                 val contacts = contactRepository.getAllContacts()
                 val onlineIds = presenceRepository.getOnlineUsers().getOrDefault(emptySet())
                 allContactsList = contacts.map { it.copy(isOnline = it.contactId in onlineIds) }
+                _totalContactCount.value = allContactsList.size
                 Log.d(TAG, "Loaded ${allContactsList.size} contacts")
                 applyFilter()
 
@@ -63,6 +68,8 @@ class ContactsViewModel(application: Application) : AndroidViewModel(application
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading contacts", e)
                 _errorMessage.value = "Failed to load contacts: ${e.message}"
+                allContactsList = emptyList()
+                _totalContactCount.value = 0
                 _displayedContacts.value = emptyList()
             } finally {
                 _isLoading.value = false
@@ -80,6 +87,7 @@ class ContactsViewModel(application: Application) : AndroidViewModel(application
                 val contacts = contactRepository.getAllContacts(forceRefresh = true)
                 val onlineIds = presenceRepository.getOnlineUsers().getOrDefault(emptySet())
                 allContactsList = contacts.map { it.copy(isOnline = it.contactId in onlineIds) }
+                _totalContactCount.value = allContactsList.size
                 Log.d(TAG, "Refreshed ${allContactsList.size} contacts")
                 applyFilter()
             } catch (e: Exception) {

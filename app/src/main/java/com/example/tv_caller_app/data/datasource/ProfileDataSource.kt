@@ -47,7 +47,9 @@ class ProfileDataSource private constructor(
             .decodeSingleOrNull<ProfileInsert>() != null
 
     suspend fun insertProfile(userId: String, username: String, email: String) {
-        supabase.from("profiles").insert(ProfileInsert(id = userId, username = username, email = email))
+        supabase.from("profiles").insert(
+            ProfileInsert(id = userId, username = username, email = email)
+        )
     }
 
     suspend fun isUsernameTaken(username: String): Boolean {

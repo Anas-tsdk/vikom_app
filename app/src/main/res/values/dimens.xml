@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="text_title">44sp</dimen>
-    <dimen name="text_heading">34sp</dimen>
+    <!-- Phone defaults. Tablets and televisions override these in qualified resources. -->
+    <dimen name="text_title">30sp</dimen>
+    <dimen name="text_heading">24sp</dimen>
     <dimen name="text_primary">18sp</dimen>
     <dimen name="text_caption">14sp</dimen>
     <dimen name="text_small">12sp</dimen>
@@ -10,7 +11,7 @@
     <dimen name="text_call_timer">32sp</dimen>
     <dimen name="text_call_status">18sp</dimen>
 
-    <dimen name="button_call_action">80dp</dimen>
+    <dimen name="button_call_action">56dp</dimen>
     <dimen name="button_in_call">64dp</dimen>
     <dimen name="button_height">48dp</dimen>
     <dimen name="button_width">20dp</dimen>
@@ -51,7 +52,7 @@
     <dimen name="divider_width">400dp</dimen>
 
     <dimen name="call_avatar_size">140dp</dimen>
-    <dimen name="call_button_padding">20dp</dimen>
+    <dimen name="call_button_padding">12dp</dimen>
     <dimen name="in_call_button_padding">14dp</dimen>
     <dimen name="call_button_spacing">32dp</dimen>
 
@@ -82,4 +83,23 @@
     <dimen name="avatar_size_contact_card">50dp</dimen>
     <dimen name="text_contact_card_name">16sp</dimen>
     <dimen name="text_contact_card_subtitle">12sp</dimen>
+
+    <dimen name="text_body">18sp</dimen>
+    <dimen name="radius_sm">12dp</dimen>
+    <dimen name="radius_default">16dp</dimen>
+    <dimen name="radius_button">16dp</dimen>
+    <dimen name="radius_card">20dp</dimen>
+    <dimen name="radius_pill">999dp</dimen>
+    <dimen name="elevation_sm">2dp</dimen>
+    <dimen name="elevation_md">4dp</dimen>
+    <dimen name="elevation_lg">8dp</dimen>
+    <dimen name="hero_time_size">44sp</dimen>
+    <dimen name="day_anchor_width">108dp</dimen>
+    <dimen name="day_anchor_number">26sp</dimen>
+    <dimen name="list_time_size">22sp</dimen>
+    <dimen name="home_tile_icon">52dp</dimen>
+    <dimen name="care_team_avatar">56dp</dimen>
+    <dimen name="chip_padding_horizontal">14dp</dimen>
+    <dimen name="chip_padding_vertical">6dp</dimen>
+    <dimen name="chip_gap">10dp</dimen>
 </resources>

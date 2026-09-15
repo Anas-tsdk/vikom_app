@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/vk_home_background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/padding_standard">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/VK.Text.Title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:accessibilityHeading="true"
+                android:text="@string/ai_assistant_page"
+                tools:ignore="UnusedAttribute" />
+
+            <TextView
+                android:id="@+id/btn_ai_confirm"
+                style="@style/VK.Text.Body.Emphasis"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/vk_button_secondary"
+                android:clickable="true"
+                android:drawableStart="@drawable/ic_home"
+                android:drawablePadding="6dp"
+                android:focusable="true"
+                android:gravity="center"
+                android:minHeight="56dp"
+                android:paddingHorizontal="@dimen/padding_standard"
+                android:text="@string/home_title"
+                android:textColor="@color/vk_white" />
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="90dp"
+            android:layout_marginTop="@dimen/padding_small"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_ai_assistant_full" />
+
+        <TextView
+            android:id="@+id/txt_ai_greeting"
+            style="@style/VK.Text.Heading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:accessibilityHeading="true"
+            android:gravity="center"
+            tools:ignore="UnusedAttribute" />
+
+        <TextView
+            style="@style/VK.Text.Body.Muted"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/ai_subtitle" />
+
+        <LinearLayout
+            android:id="@+id/card_head_nurse"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/padding_standard"
+            android:background="@drawable/appointment_card_background"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:minHeight="80dp"
+            android:orientation="horizontal"
+            android:padding="@dimen/padding_standard">
+
+            <ImageView android:layout_width="44dp" android:layout_height="44dp" android:importantForAccessibility="no" android:src="@drawable/ic_acc_doctor" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView style="@style/VK.Text.Caption" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/ai_head_nurse_title" android:textColor="@color/vk_primary" android:textStyle="bold" />
+                <TextView android:id="@+id/txt_head_nurse_name" style="@style/VK.Text.Body.Emphasis" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                <TextView android:id="@+id/txt_head_nurse_phone" style="@style/VK.Text.Body.Muted" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <include layout="@layout/view_help_tile_medicine" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:layout_weight="0" />
+        <include layout="@layout/view_help_tile_appointments" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:layout_weight="0" />
+        <include layout="@layout/view_help_tile_daily" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:layout_weight="0" />
+        <include layout="@layout/view_help_tile_emergency" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:layout_weight="0" />
+    </LinearLayout>
+</ScrollView>

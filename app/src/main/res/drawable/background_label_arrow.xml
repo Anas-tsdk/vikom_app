@@ -16,7 +16,7 @@
                 android:endX="164"
                 android:endY="0">
                 <item android:offset="0" android:color="#EBF5FE" />
-                <item android:offset="1" android:color="#E3F2FD" />
+                <item android:offset="1" android:color="@color/vk_primary_surface" />
             </gradient>
         </aapt:attr>
     </path>
@@ -30,7 +30,7 @@
         android:pathData="M 172,0 L 180,0 L 186,18 Q 188,24 186,30 L 180,48 L 172,48 L 178,30 Q 180,24 178,18 Z" />
 
     <path
-        android:fillColor="#BBDEFB"
+        android:fillColor="@color/vk_primary_surface"
         android:pathData="M 184,0 L 192,0 L 198,18 Q 200,24 198,30 L 192,48 L 184,48 L 190,30 Q 192,24 190,18 Z" />
 
 </vector>

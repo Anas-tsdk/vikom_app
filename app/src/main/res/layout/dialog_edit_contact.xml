@@ -51,7 +51,7 @@
                 android:layout_height="wrap_content"
                 android:inputType="textPersonName"
                 android:autofillHints="name"
-                android:hint="Skriv inn kallenavn for denne kontakten"
+                android:hint="@string/contact_nickname_full_hint"
                 android:textSize="@dimen/text_primary"
                 android:textColor="@color/text_primary"
                 android:textColorHint="@color/text_secondary"

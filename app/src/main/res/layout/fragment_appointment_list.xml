@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/vk_home_background"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/padding_large"
+    android:paddingTop="4dp"
+    android:paddingBottom="@dimen/padding_standard">
+
+    <include layout="@layout/view_screen_header" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/vk_content_area_background"
+        android:padding="8dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/appointments_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingHorizontal="4dp" />
+
+        <TextView
+            android:id="@+id/txt_state"
+            style="@style/VK.Text.Body.Muted"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:padding="@dimen/padding_large" />
+
+        <TextView
+            android:id="@+id/btn_retry"
+            style="@style/VK.Text.Body.Emphasis"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginBottom="@dimen/padding_large"
+            android:background="@drawable/vk_button_primary"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:minHeight="56dp"
+            android:paddingHorizontal="@dimen/padding_large"
+            android:text="@string/appointments_retry"
+            android:textColor="@color/vk_white"
+            android:visibility="gone" />
+    </FrameLayout>
+</LinearLayout>

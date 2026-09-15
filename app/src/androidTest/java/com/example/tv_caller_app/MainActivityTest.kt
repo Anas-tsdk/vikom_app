@@ -5,6 +5,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.accessibility.AccessibilityChecks
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isFocusable
@@ -100,22 +101,25 @@ class MainActivityTest {
     }
 
     @Test
-    fun quickDialTabIsVisibleAndFocusable() {
+    fun homeHeroAndTilesAreVisible() {
         launch().use {
-            onView(withId(R.id.tab_quick_dial))
+            onView(withId(R.id.hero_card))
                 .check(matches(isDisplayed()))
                 .check(matches(isFocusable()))
-                .perform(click())
+            onView(withId(R.id.tile_appointments)).check(matches(isDisplayed()))
+            onView(withId(R.id.tile_contacts)).check(matches(isDisplayed()))
+            onView(withId(R.id.tile_care_team)).check(matches(isDisplayed()))
         }
     }
 
     @Test
-    fun contactsTabIsVisibleAndFocusable() {
+    fun callTileOpensExistingQuickDialAndBackReturnsHome() {
         launch().use {
-            onView(withId(R.id.tab_contacts))
-                .check(matches(isDisplayed()))
-                .check(matches(isFocusable()))
-                .perform(click())
+            onView(withId(R.id.tile_contacts)).perform(click())
+            onView(withId(R.id.main_grid)).check(matches(isDisplayed()))
+            onView(withId(R.id.tab_quick_dial)).check(matches(isDisplayed()))
+            pressBack()
+            onView(withId(R.id.hero_card)).check(matches(isDisplayed()))
         }
     }
 }

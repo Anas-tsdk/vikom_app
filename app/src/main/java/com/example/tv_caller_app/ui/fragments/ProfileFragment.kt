@@ -106,7 +106,7 @@ class ProfileFragment : Fragment() {
         }
 
         btnGoBack.setOnClickListener {
-            requireActivity().supportFragmentManager.popBackStack()
+            (activity as? MainActivity)?.showHome()
         }
     }
 

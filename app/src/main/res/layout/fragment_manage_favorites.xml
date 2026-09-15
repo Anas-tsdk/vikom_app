@@ -82,7 +82,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/text_caption"
-                android:textColor="#06195C"
+                android:textColor="@color/vk_secondary"
                 android:drawableStart="@drawable/ic_star_filled"
                 android:drawablePadding="6dp"
                 android:gravity="center_vertical"
@@ -92,7 +92,7 @@
             <View
                 android:layout_width="1dp"
                 android:layout_height="16dp"
-                android:background="#06195C"
+                android:background="@color/vk_secondary"
                 android:layout_marginHorizontal="@dimen/padding_standard"
                 android:alpha="0.3" />
 
@@ -101,7 +101,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/text_caption"
-                android:textColor="#06195C"
+                android:textColor="@color/vk_secondary"
                 android:drawableStart="@drawable/ic_pin"
                 android:drawablePadding="6dp"
                 android:gravity="center_vertical"

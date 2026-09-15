@@ -10,6 +10,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 class PresenceRepository private constructor(
     private val presenceDataSource: PresenceDataSource,
@@ -17,10 +19,14 @@ class PresenceRepository private constructor(
 ) {
     private val scope = CoroutineScope(Dispatchers.IO)
     private var heartbeatJob: Job? = null
+    private val onlineUsersMutex = Mutex()
+    @Volatile private var cachedOnlineUsers: Set<Int>? = null
+    @Volatile private var onlineUsersTimestamp = 0L
 
     companion object {
         private const val TAG = "PresenceRepository"
         private const val HEARTBEAT_INTERVAL_MS = 30000L
+        private const val ONLINE_USERS_CACHE_MS = 10_000L
 
         private val ALWAYS_ONLINE_CONTACT_IDS = setOf(503035273, 955647202, 218221166)
 
@@ -71,23 +77,24 @@ class PresenceRepository private constructor(
         }
     }
 
-    suspend fun getOnlineUsers(): Result<Set<Int>> {
-        return try {
+    suspend fun getOnlineUsers(forceRefresh: Boolean = false): Result<Set<Int>> = onlineUsersMutex.withLock {
+        val now = System.currentTimeMillis()
+        if (!forceRefresh && now - onlineUsersTimestamp < ONLINE_USERS_CACHE_MS) {
+            cachedOnlineUsers?.let { return@withLock Result.success(it) }
+        }
+
+        try {
             Log.d(TAG, "Fetching online users...")
-            val online = presenceDataSource.getOnlineContactIds()
-
-            val missing = ALWAYS_ONLINE_CONTACT_IDS.filter { it !in online }
-            val alwaysOnline = if (missing.isNotEmpty()) {
-                presenceDataSource.getOnlineContactIds() 
-                ALWAYS_ONLINE_CONTACT_IDS
-            } else emptySet()
-
-            val result = online + alwaysOnline
+            // The previous implementation accidentally made the same Supabase
+            // request twice whenever one demo contact was absent.
+            val result = presenceDataSource.getOnlineContactIds() + ALWAYS_ONLINE_CONTACT_IDS
+            cachedOnlineUsers = result
+            onlineUsersTimestamp = now
             Log.d(TAG, "Found ${result.size} online contact IDs")
             Result.success(result)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to fetch online users", e)
-            Result.failure(e)
+            cachedOnlineUsers?.let { Result.success(it) } ?: Result.failure(e)
         }
     }
 

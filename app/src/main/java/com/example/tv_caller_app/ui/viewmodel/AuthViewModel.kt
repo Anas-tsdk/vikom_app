@@ -116,7 +116,13 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
         }
     }
 
-    fun register(email: String, password: String, confirmPassword: String, username: String? = null, phoneNumber: String? = null) {
+    fun register(
+        email: String,
+        password: String,
+        confirmPassword: String,
+        username: String? = null,
+        phoneNumber: String? = null
+    ) {
         Log.d(TAG, "register() called with email: $email, username: $username, phoneNumber: $phoneNumber")
 
         _emailError.value = null
