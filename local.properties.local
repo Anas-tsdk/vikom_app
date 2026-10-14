@@ -1,6 +1,0 @@
-
-sdk.dir=/path/to/your/android/sdk
-
-supabase.url=https://ztgzlxzijzpbakbrybuw.supabase.co/
-supabase.key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0Z3pseHppanpwYmFrYnJ5YnV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MzgwNjcsImV4cCI6MjA3ODExNDA2N30.AddPx3wxPqxshp7Nd36GNbofbJOnslLlDkh_A7odauk
-backend.base.url=https://vikom-demo.framenex.com/
