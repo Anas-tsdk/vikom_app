@@ -9,6 +9,9 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.KeyEvent
+import android.view.inputmethod.EditorInfo
+import androidx.core.view.WindowInsetsCompat
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -171,14 +174,36 @@ class AllContactsFragment : Fragment() {
         }
 
         btnSearch.setOnClickListener {
-            val query = searchInput.text.toString()
-            viewModel.filterContacts(query)
-            searchInput.clearFocus()
+            submitSearch()
         }
+        searchInput.setOnEditorActionListener { _, actionId, event ->
+            val isSearchAction = actionId == EditorInfo.IME_ACTION_SEARCH ||
+                actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT
+            val isEnter = event?.keyCode == KeyEvent.KEYCODE_ENTER ||
+                event?.keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER
+            if (isSearchAction || isEnter) {
+                if (event == null || event.action == KeyEvent.ACTION_UP) submitSearch()
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    private fun submitSearch() {
+        viewModel.filterContacts(searchInput.text.toString().trim())
+        ViewCompat.getWindowInsetsController(searchInput)?.hide(WindowInsetsCompat.Type.ime())
+        // Do not let TextView's default IME handling focus the RecyclerView
+        // container while its search results are being replaced.
+        btnSearch.requestFocus()
     }
 
     private fun updateAdapter() {
         if (!hasLoadedOnce) return
+        if (contactsList.isComputingLayout) {
+            contactsList.post { if (view != null) updateAdapter() }
+            return
+        }
         val hasQuery = searchInput.text.isNotBlank()
         val items = if (hasQuery && currentSearchResults.isNotEmpty()) {
             ContactListAdapter.buildCombinedList(currentContacts, currentSearchResults, true)

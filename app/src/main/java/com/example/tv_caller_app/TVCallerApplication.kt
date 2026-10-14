@@ -49,6 +49,7 @@ import com.example.tv_caller_app.data.repository.PriorityRepository
 import com.example.tv_caller_app.data.repository.QuickDialRepository
 import com.example.tv_caller_app.ui.viewmodel.CallViewModel
 import com.example.tv_caller_app.ui.util.TvFocusHighlighter
+import com.example.tv_caller_app.ui.util.TvWindowManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -75,6 +76,7 @@ class TVCallerApplication : Application(), DefaultLifecycleObserver {
 
         // One high-contrast focus system for every TV/remote navigable screen.
         registerActivityLifecycleCallbacks(TvFocusHighlighter)
+        registerActivityLifecycleCallbacks(TvWindowManager)
 
         initializeSessionManager()
 

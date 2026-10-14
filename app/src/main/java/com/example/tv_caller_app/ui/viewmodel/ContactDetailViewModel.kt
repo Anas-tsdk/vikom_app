@@ -315,7 +315,7 @@ class ContactDetailViewModel(application: Application) : AndroidViewModel(applic
 
         viewModelScope.launch {
             try {
-                val success = contactRepository.createContact(
+                val createdContact = contactRepository.createContact(
                     contactId = contactId,
                     email = email,
                     address = null,
@@ -323,7 +323,12 @@ class ContactDetailViewModel(application: Application) : AndroidViewModel(applic
                     isFavorite = false
                 )
 
-                if (success) {
+                if (createdContact != null) {
+                    // Search results do not carry the saved contacts-row ID.
+                    // Publish it before exposing favorite/edit actions.
+                    _contactId.value = createdContact.id
+                    _isFavorite.value = createdContact.isFavorite
+                    _nickname.value = createdContact.nickname
                     Log.d(TAG, "Contact added successfully: $name")
                     _isAdded.value = true
                 } else {

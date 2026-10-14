@@ -24,6 +24,7 @@ class AuthActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         applyLocale()
         setContentView(R.layout.activity_auth)
+        com.example.tv_caller_app.ui.util.TvWindowManager.installContentInsets(this)
 
         val authRepository = (application as TVCallerApplication).getAuthRepository()
         authViewModel = ViewModelProvider(this, AuthViewModel.factory(authRepository))[AuthViewModel::class.java]

@@ -204,7 +204,6 @@ class InCallActivity : FragmentActivity() {
             btnCamera.isEnabled = false
             btnCamera.alpha = 0.4f
         }
-        switchCameraControl.visibility = if (callViewModel.hasMultipleCameras()) View.VISIBLE else View.GONE
         updateSwitchCameraState(callViewModel.isCameraEnabled.value == true)
 
         btnHangUp.requestFocus()
@@ -511,8 +510,13 @@ class InCallActivity : FragmentActivity() {
 
     private fun updateSwitchCameraState(videoEnabled: Boolean) {
         if (!this::btnSwitchCamera.isInitialized) return
-        btnSwitchCamera.isEnabled = videoEnabled
-        btnSwitchCamera.alpha = if (videoEnabled) 1f else 0.45f
+        val showSwitchCamera = videoEnabled && callViewModel.hasMultipleCameras()
+        if (!showSwitchCamera && btnSwitchCamera.hasFocus()) {
+            btnCamera.requestFocus()
+        }
+        switchCameraControl.visibility = if (showSwitchCamera) View.VISIBLE else View.GONE
+        btnSwitchCamera.isEnabled = showSwitchCamera
+        btnCamera.nextFocusRightId = if (showSwitchCamera) R.id.btn_switch_camera else R.id.btn_camera
     }
 
     private fun preferSpeakerForDevice(): Boolean {

@@ -183,7 +183,11 @@ class SettingsFragment : Fragment() {
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).also { if (index > 0) it.topMargin = resources.getDimensionPixelSize(R.dimen.padding_small) }
             row.setOnClickListener {
-                if (code != settings.language) settings.language = code
+                if (selected) {
+                    dialog.dismiss()
+                    return@setOnClickListener
+                }
+                settings.language = code
                 dialog.dismiss()
                 activity?.recreate()
             }

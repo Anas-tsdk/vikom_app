@@ -241,6 +241,12 @@ class ContactDetailFragment : Fragment() {
 
         viewModel.isAdded.observe(viewLifecycleOwner) { isAdded ->
             if (isAdded) {
+                arguments?.apply {
+                    putString(ARG_CONTACT_ID, viewModel.contactId.value)
+                    putBoolean(ARG_IS_IN_CONTACTS, true)
+                    putBoolean(ARG_IS_FAVORITE, viewModel.isFavorite.value == true)
+                    putString(ARG_NICKNAME, viewModel.nickname.value)
+                }
                 Log.d(TAG, "Contact added successfully")
                 Toast.makeText(
                     requireContext(),

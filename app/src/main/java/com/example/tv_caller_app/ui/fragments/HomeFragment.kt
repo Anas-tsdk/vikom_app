@@ -172,7 +172,9 @@ class HomeFragment : Fragment() {
         // immediately actionable with one tap.
         val isTv = (resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK) ==
             Configuration.UI_MODE_TYPE_TELEVISION
-        if (isTv) heroCard.requestFocus()
+        if (isTv) {
+            if (currentInvitation != null) invitationAccept.requestFocus() else heroCard.requestFocus()
+        }
     }
 
     override fun onResume() {
@@ -361,8 +363,20 @@ class HomeFragment : Fragment() {
     }
 
     private fun showInvitationMode(enabled: Boolean) {
+        val enteringInvitation = enabled && invitationPanel.visibility != View.VISIBLE
         invitationTitle.visibility = if (enabled) View.VISIBLE else View.GONE
         invitationPanel.visibility = if (enabled) View.VISIBLE else View.GONE
+        // The card's explicit D-pad route previously skipped its response buttons.
+        // Let the buttons receive focus directly while an invitation is visible.
+        heroCard.isFocusable = !enabled
+        heroCard.nextFocusDownId = if (enabled) R.id.btn_home_invitation_accept else R.id.tile_appointments
+        appointmentsTile.nextFocusUpId = if (enabled) R.id.btn_home_invitation_accept else R.id.hero_card
+        val portrait = resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+        callTile.nextFocusUpId = if (enabled) R.id.btn_home_invitation_accept
+            else if (portrait) R.id.tile_appointments else R.id.hero_card
+        dailyTasksTile.nextFocusUpId = if (enabled) R.id.btn_home_invitation_accept
+            else if (portrait) R.id.tile_contacts else R.id.hero_card
+        if (enteringInvitation) focusInvitationResponse()
         val contentAlpha = if (enabled) 0.42f else 1f
         listOf(appointmentsTile, callTile, dailyTasksTile).forEach { it.alpha = contentAlpha }
         heroCard.contentDescription = getString(
@@ -373,10 +387,24 @@ class HomeFragment : Fragment() {
     private fun updateInvitationResponseState() {
         if (!this::invitationActions.isInitialized || currentInvitation == null) return
         val busy = appointmentsViewModel.responseInProgress.value == currentInvitation?.id
+        val wasBusy = invitationActions.visibility == View.GONE
         invitationActions.visibility = if (busy) View.GONE else View.VISIBLE
         invitationProgress.visibility = if (busy) View.VISIBLE else View.GONE
         invitationAccept.isEnabled = !busy
         invitationDecline.isEnabled = !busy
+        if (wasBusy && !busy) focusInvitationResponse()
+    }
+
+    private fun focusInvitationResponse() {
+        val isTv = (resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK) ==
+            Configuration.UI_MODE_TYPE_TELEVISION
+        if (!isTv) return
+        invitationAccept.post {
+            if (view != null && currentInvitation != null && invitationAccept.isEnabled &&
+                invitationActions.visibility == View.VISIBLE) {
+                invitationAccept.requestFocus()
+            }
+        }
     }
 
     private fun bindTasks(tasks: String?) {

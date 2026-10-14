@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+            android:clipChildren="false"
+            android:clipToPadding="false" xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,6 +10,8 @@
     android:padding="@dimen/padding_xlarge">
 
     <LinearLayout
+            android:clipChildren="false"
+            android:clipToPadding="false"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -47,6 +51,11 @@
     </LinearLayout>
 
     <ScrollView
+        android:paddingHorizontal="32dp"
+        android:paddingVertical="16dp"
+        android:clipToPadding="false"
+        android:focusable="false"
+        android:descendantFocusability="afterDescendants"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -54,6 +63,8 @@
         android:fillViewport="true">
 
         <LinearLayout
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -89,6 +100,8 @@
                 android:clickable="true"/>
 
             <LinearLayout
+            android:clipChildren="false"
+            android:clipToPadding="false"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"

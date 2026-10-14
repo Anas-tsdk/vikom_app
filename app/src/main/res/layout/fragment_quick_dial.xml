@@ -69,6 +69,8 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/main_grid"
+            android:paddingVertical="16dp"
+            android:paddingHorizontal="8dp"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"

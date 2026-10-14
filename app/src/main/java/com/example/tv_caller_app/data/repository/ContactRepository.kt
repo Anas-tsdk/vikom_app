@@ -5,6 +5,7 @@ import com.example.tv_caller_app.data.datasource.ContactDataSource
 import com.example.tv_caller_app.data.datasource.ProfileDataSource
 import com.example.tv_caller_app.domain.ContactInfo
 import com.example.tv_caller_app.domain.UserSearchResult
+import com.example.tv_caller_app.data.dto.Contact
 
 class ContactRepository private constructor(
     private val contactDataSource: ContactDataSource,
@@ -90,7 +91,7 @@ class ContactRepository private constructor(
         address: String? = null,
         notes: String? = null,
         isFavorite: Boolean = false
-    ): Boolean {
+    ): Contact? {
         return try {
             Log.d(TAG, "Creating new contact with contact ID: $contactId")
             val result = contactDataSource.createContact(contactId, email, address, notes, isFavorite)
@@ -98,7 +99,7 @@ class ContactRepository private constructor(
             result
         } catch (e: Exception) {
             Log.e(TAG, "Error creating contact: ${e.message}", e)
-            false
+            null
         }
     }
 

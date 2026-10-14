@@ -66,8 +66,8 @@ class ContactDataSource private constructor(
         address: String?,
         notes: String?,
         isFavorite: Boolean
-    ): Boolean {
-        supabase.from("contacts").insert(
+    ): Contact {
+        return supabase.from("contacts").insert(
             ContactInsert(
                 userId = getUserId(),
                 contactId = contactId,
@@ -76,8 +76,7 @@ class ContactDataSource private constructor(
                 notes = notes,
                 isFavorite = isFavorite
             )
-        )
-        return true
+        ) { select() }.decodeSingle<Contact>()
     }
 
     suspend fun updateContact(

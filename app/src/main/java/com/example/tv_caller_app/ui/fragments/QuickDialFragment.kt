@@ -11,7 +11,6 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -41,16 +40,6 @@ class QuickDialFragment : Fragment() {
     }
 
     private lateinit var mainGrid: RecyclerView
-
-    private val scrollToTopFocusListener = ViewTreeObserver.OnGlobalFocusChangeListener { _, newFocus ->
-        if (newFocus == null) return@OnGlobalFocusChangeListener
-        val pos = findRvChildPosition(newFocus)
-        if (pos == RecyclerView.NO_POSITION) return@OnGlobalFocusChangeListener
-        val cols = (mainGrid.layoutManager as? GridLayoutManager)?.spanCount ?: return@OnGlobalFocusChangeListener
-        if (pos in 1..cols) {
-            mainGrid.smoothScrollToPosition(0)
-        }
-    }
 
     private fun findRvChildPosition(focused: View): Int {
         var v: View? = focused
@@ -113,7 +102,6 @@ class QuickDialFragment : Fragment() {
         setupTabs(view)
         setupGrid()
         observeViewModel()
-        view.viewTreeObserver.addOnGlobalFocusChangeListener(scrollToTopFocusListener)
         ProcessLifecycleOwner.get().lifecycle.addObserver(appForegroundObserver)
 
         view.setOnKeyListener { _, keyCode, event ->
@@ -146,7 +134,6 @@ class QuickDialFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        view?.viewTreeObserver?.removeOnGlobalFocusChangeListener(scrollToTopFocusListener)
         ProcessLifecycleOwner.get().lifecycle.removeObserver(appForegroundObserver)
     }
 
@@ -173,10 +160,14 @@ class QuickDialFragment : Fragment() {
         val isLargeScreen = resources.getBoolean(R.bool.is_large_screen)
         val isTv = (resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK) == Configuration.UI_MODE_TYPE_TELEVISION
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        // Preserve the four-column TV layout while keeping large, readable touch
-        // targets on portrait tablets and phones.
+        // Keep contact cards readable instead of forcing four columns on every TV.
+        val availableWidthDp = resources.configuration.screenWidthDp -
+            ((2 * resources.getDimension(R.dimen.padding_large) +
+                2 * resources.getDimension(R.dimen.padding_medium)) /
+                resources.displayMetrics.density).toInt()
         val columns = when {
-            isTv || (isLargeScreen && isLandscape) -> 4
+            isTv -> (availableWidthDp / 200).coerceIn(2, 4)
+            isLargeScreen && isLandscape -> 4
             isLandscape -> 3
             else -> 2
         }

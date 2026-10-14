@@ -14,9 +14,14 @@
         android:importantForAccessibility="no"
         tools:visibility="visible" />
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center_horizontal"
         android:paddingTop="@dimen/padding_xlarge"
@@ -129,10 +134,20 @@
             android:visibility="gone"
             android:accessibilityLiveRegion="polite" />
 
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fillViewport="true">
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
         <LinearLayout
             android:id="@+id/call_controls"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:background="@drawable/call_controls_background"
             android:orientation="horizontal"
             android:gravity="center_vertical"
@@ -295,6 +310,7 @@
 
             <LinearLayout
                 android:id="@+id/switch_camera_control"
+                android:visibility="gone"
                 android:layout_width="@dimen/button_call_action"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
@@ -332,8 +348,11 @@
             </LinearLayout>
 
         </LinearLayout>
+        </FrameLayout>
+        </HorizontalScrollView>
 
     </LinearLayout>
+    </ScrollView>
 
     <TextView
         android:id="@+id/txt_video_timer"

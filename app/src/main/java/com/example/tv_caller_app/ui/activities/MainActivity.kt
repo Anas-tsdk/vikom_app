@@ -646,12 +646,8 @@ class MainActivity : FragmentActivity() {
         }
         val session = SessionManager.getInstance(this)
 
-        // A previously confirmed web patient is blocked immediately on later
-        // launches. New/unlinked accounts are checked quietly so ordinary ViKom
-        // users never see a patient-only prompt.
-        if (session.dailyCheckInRequired() == true) {
-            showDailyCheckInDialog(checkingStatus = true)
-        }
+        // Check quietly on every launch and resume. Show the prompt only when
+        // today's confirmation is due, or verification fails for a known patient.
 
         checkInRequestInFlight = true
         lifecycleScope.launch {

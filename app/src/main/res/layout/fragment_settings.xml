@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+            android:clipChildren="false"
+            android:clipToPadding="false" xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,6 +10,8 @@
     android:padding="@dimen/padding_xlarge">
 
     <LinearLayout
+            android:clipChildren="false"
+            android:clipToPadding="false"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -49,6 +53,11 @@
     </LinearLayout>
 
     <ScrollView
+        android:paddingHorizontal="32dp"
+        android:paddingVertical="16dp"
+        android:clipToPadding="false"
+        android:focusable="false"
+        android:descendantFocusability="afterDescendants"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -56,12 +65,16 @@
         android:fillViewport="true">
 
         <LinearLayout
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
 
             <LinearLayout
+            android:clipChildren="false"
+            android:clipToPadding="false"
                 android:id="@+id/setting_language"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -92,6 +105,8 @@
             </LinearLayout>
 
             <LinearLayout
+            android:clipChildren="false"
+            android:clipToPadding="false"
                 android:id="@+id/setting_ringtone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -122,6 +137,8 @@
             </LinearLayout>
 
             <LinearLayout
+            android:clipChildren="false"
+            android:clipToPadding="false"
                 android:id="@+id/setting_auto_answer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -152,12 +169,16 @@
             </LinearLayout>
 
             <LinearLayout
+            android:clipChildren="false"
+            android:clipToPadding="false"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginBottom="8dp">
 
                 <LinearLayout
+            android:clipChildren="false"
+            android:clipToPadding="false"
                     android:id="@+id/setting_account_header"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -189,6 +210,8 @@
                 </LinearLayout>
 
                 <LinearLayout
+            android:clipChildren="false"
+            android:clipToPadding="false"
                     android:id="@+id/account_info_content"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

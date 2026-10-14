@@ -99,6 +99,8 @@
                     android:textColorHint="@color/text_secondary"
                     android:background="@android:color/transparent"
                     android:inputType="text"
+                    android:singleLine="true"
+                    android:imeOptions="actionSearch"
                     android:paddingStart="@dimen/padding_small"
                     android:paddingEnd="@dimen/padding_small"
                     android:nextFocusDown="@id/contacts_list"
