@@ -3,11 +3,7 @@ package com.example.tv_caller_app.ui.util
 import android.app.Activity
 import android.app.Application
 import android.content.res.Configuration
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.ColorFilter
-import android.graphics.Paint
-import android.graphics.PixelFormat
+import android.graphics.Matrix
 import android.graphics.RectF
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
@@ -25,7 +21,7 @@ import java.util.WeakHashMap
  *
  * Most screens already use focused drawables, but their contrast varies and a
  * few clickable containers have no focused background at all. A global focus
- * listener keeps the original UI intact while adding a brand-blue/navy TV ring,
+ * listener keeps the original UI intact while adding one shape-matched violet ring,
  * a small scale increase and elevation whenever navigation comes from a remote
  * or keyboard. Touch focus is deliberately ignored.
  */
@@ -36,14 +32,25 @@ object TvFocusHighlighter : Application.ActivityLifecycleCallbacks {
         val listener: ViewTreeObserver.OnGlobalFocusChangeListener
     )
 
+    private data class FocusDrawing(
+        val observer: ViewTreeObserver,
+        val listener: ViewTreeObserver.OnPreDrawListener
+    )
+
     private data class OriginalVisuals(
         val scaleX: Float,
         val scaleY: Float,
-        val elevation: Float
+        val elevation: Float,
+        val translationZ: Float,
+        val defaultFocusHighlight: Boolean
     )
 
+    private data class BackgroundVisuals(val original: Drawable?, val managed: Drawable?)
+
+    private val backgrounds = WeakHashMap<View, BackgroundVisuals>()
     private val registrations = WeakHashMap<Activity, Registration>()
     private val rings = WeakHashMap<View, Drawable>()
+    private val drawListeners = WeakHashMap<View, FocusDrawing>()
     private val originalVisuals = WeakHashMap<View, OriginalVisuals>()
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
@@ -79,112 +86,155 @@ object TvFocusHighlighter : Application.ActivityLifecycleCallbacks {
 
         originalVisuals.putIfAbsent(
             view,
-            OriginalVisuals(view.scaleX, view.scaleY, view.elevation)
+            OriginalVisuals(view.scaleX, view.scaleY, view.elevation, view.translationZ,
+                if (android.os.Build.VERSION.SDK_INT >= 26) view.defaultFocusHighlightEnabled else false)
         )
-        val isTv = (view.resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK) ==
-            Configuration.UI_MODE_TYPE_TELEVISION
-        if (isTv) prepareFocusSpace(view)
-        val ring = HighContrastFocusRing(
+        if (android.os.Build.VERSION.SDK_INT >= 26) view.defaultFocusHighlightEnabled = false
+        prepareBackground(view)
+        val ring = FocusRingDrawable(
             view.resources.displayMetrics.density,
-            isTv,
             ContextCompat.getColor(view.context, R.color.color_brand_blue)
         )
         rings[view] = ring
 
+        val preferredScale = preferredFocusScale(view)
+        var lastScale = Float.NaN
+        val listener = ViewTreeObserver.OnPreDrawListener {
+            if (view.hasFocus() && !view.isInTouchMode && rings[view] === ring) {
+                // Recheck after layout and scrolling, not just when focus arrives.
+                // RecyclerView can resize/rebind a focused card without moving focus.
+                prepareBackground(view)
+                ring.followBackground(view.background)
+                ring.setBounds(0, 0, view.width, view.height)
+                val focusScale = fittingScale(view, preferredScale)
+                if (focusScale != lastScale) {
+                    val original = originalVisuals.getValue(view)
+                    view.animate().cancel()
+                    if (lastScale.isNaN() || focusScale < lastScale) {
+                        // Clamp before this frame is drawn. An animation from an
+                        // old, larger scale would still show clipped frames.
+                        view.scaleX = original.scaleX
+                        view.scaleY = original.scaleY
+                    }
+                    view.animate()
+                        .scaleX(original.scaleX * focusScale)
+                        .scaleY(original.scaleY * focusScale)
+                        .translationZ(original.translationZ + if (preferredScale > 1f) dp(view, FOCUS_LIFT_DP) else 0f)
+                        .setDuration(FOCUS_ANIMATION_MS)
+                        .setInterpolator(DecelerateInterpolator())
+                        .start()
+                    lastScale = focusScale
+                }
+            }
+            true
+        }
+        val observer = view.viewTreeObserver
+        drawListeners[view] = FocusDrawing(observer, listener)
+        observer.addOnPreDrawListener(listener)
+        view.overlay.add(ring)
         view.post {
-            if (!view.hasFocus() || view.isInTouchMode || rings[view] !== ring) return@post
-            // Measure after layout: initial TV focus may arrive before sizing.
-            // Wide cards grow into the reserved margins, within clipping bounds.
-            val preferredScale = if (isTv) TV_FOCUS_SCALE else FOCUS_SCALE
-            // Scrolling normally considers only the unscaled button bounds.
-            // Reveal the enlarged bounds before calculating the final zoom.
-            val marginX = kotlin.math.ceil(view.width * (preferredScale - 1f) / 2f + dp(view, 8f)).toInt()
-            val marginY = kotlin.math.ceil(view.height * (preferredScale - 1f) / 2f + dp(view, 8f)).toInt()
+            if (!view.hasFocus() || rings[view] !== ring) return@post
+            // Ask the viewport to reveal the focus margin, without changing its
+            // padding or triggering a different layout when selection moves.
+            val extra = if (preferredScale > 1f) dp(view, 8f) else 0f
+            val marginX = kotlin.math.ceil(view.width * (preferredScale - 1f) / 2f + extra).toInt()
+            val marginY = kotlin.math.ceil(view.height * (preferredScale - 1f) / 2f + extra).toInt()
             view.requestRectangleOnScreen(
-                Rect(-marginX, -marginY, view.width + marginX, view.height + marginY),
-                true
+                Rect(-marginX, -marginY, view.width + marginX, view.height + marginY), true
             )
-            val focusScale = fittingScale(view, preferredScale)
-            ring.setBounds(0, 0, view.width, view.height)
-            view.overlay.add(ring)
-            view.animate()
-                .scaleX(originalVisuals[view]?.scaleX?.times(focusScale) ?: focusScale)
-                .scaleY(originalVisuals[view]?.scaleY?.times(focusScale) ?: focusScale)
-                .translationZ(dp(view, FOCUS_LIFT_DP))
-                .setDuration(FOCUS_ANIMATION_MS)
-                .setInterpolator(DecelerateInterpolator())
-                .start()
+            view.invalidate()
         }
     }
 
     private fun removeHighlight(view: View?) {
         if (view == null) return
         rings.remove(view)?.let(view.overlay::remove)
-        val original = originalVisuals[view] ?: return
+        drawListeners.remove(view)?.let { drawing ->
+            if (drawing.observer.isAlive) drawing.observer.removeOnPreDrawListener(drawing.listener)
+        }
+        backgrounds.remove(view)?.let { background ->
+            if (view.background === background.managed) setBackgroundPreservingPadding(view, background.original)
+        }
+        val original = originalVisuals.remove(view) ?: return
+        if (android.os.Build.VERSION.SDK_INT >= 26) view.defaultFocusHighlightEnabled = original.defaultFocusHighlight
         view.animate().cancel()
         view.scaleX = original.scaleX
         view.scaleY = original.scaleY
-        view.translationZ = 0f
+        view.translationZ = original.translationZ
         view.elevation = original.elevation
     }
 
     private fun dp(view: View, value: Float): Float =
         value * view.resources.displayMetrics.density
 
-    private fun prepareFocusSpace(view: View) {
-        var parent = view.parent as? ViewGroup
-        while (parent != null && parent.id != android.R.id.content) {
-            when (parent) {
-                is android.widget.ScrollView,
-                is android.widget.HorizontalScrollView,
-                is androidx.recyclerview.widget.RecyclerView -> {
-                    // Reserve room at the very first/last item as well as in
-                    // the middle of a scrollable page. Keep viewport clipping.
-                    val horizontal = dp(view, 32f).toInt()
-                    val vertical = dp(view, 16f).toInt()
-                    parent.setPadding(
-                        maxOf(parent.paddingLeft, horizontal),
-                        maxOf(parent.paddingTop, vertical),
-                        maxOf(parent.paddingRight, horizontal),
-                        maxOf(parent.paddingBottom, vertical)
-                    )
-                    parent.clipToPadding = false
-                }
-                is android.widget.LinearLayout,
-                is android.widget.FrameLayout,
-                is android.widget.RelativeLayout -> {
-                    // Intermediate wrappers must allow a button to grow into
-                    // those margins; the scrolling/window viewport still clips.
-                    parent.clipChildren = false
-                    parent.clipToPadding = false
-                }
-            }
-            parent = parent.parent as? ViewGroup
+    /** Full-width form screens opt into a stationary, inset focus ring via their root tag. */
+    internal fun preferredFocusScale(view: View): Float {
+        var ancestor: View? = view
+        while (ancestor != null) {
+            if (ancestor.tag == NO_FOCUS_ZOOM_TAG) return 1f
+            ancestor = ancestor.parent as? View
         }
+        val isTv = (view.resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK) ==
+            Configuration.UI_MODE_TYPE_TELEVISION
+        return if (isTv) TV_FOCUS_SCALE else FOCUS_SCALE
     }
 
-    private fun fittingScale(view: View, preferredScale: Float): Float {
+    /** Largest centered zoom that fits every clipping ancestor, in its coordinates. */
+    internal fun fittingScale(view: View, preferredScale: Float): Float {
         if (view.width == 0 || view.height == 0) return 1f
+        val original = originalVisuals[view]
+        val bounds = RectF(0f, 0f, view.width.toFloat(), view.height.toFloat())
+        val pivot = floatArrayOf(view.pivotX, view.pivotY)
+        val matrix = Matrix().apply {
+            // Ignore the current focus animation when measuring available room.
+            setScale(original?.scaleX ?: view.scaleX, original?.scaleY ?: view.scaleY,
+                view.pivotX, view.pivotY)
+            postRotate(view.rotation, view.pivotX, view.pivotY)
+        }
+        matrix.mapRect(bounds)
+        matrix.mapPoints(pivot)
+        var child = view
+        var parent = child.parent as? ViewGroup
         var scale = preferredScale
-        var left = view.left.toFloat()
-        var top = view.top.toFloat()
-        var parent = view.parent as? ViewGroup
         while (parent != null) {
-            val centerX = left - parent.scrollX + view.width / 2f
-            val centerY = top - parent.scrollY + view.height / 2f
-            if (parent.clipChildren) {
-                val minX = if (parent.clipToPadding) parent.paddingLeft.toFloat() else 0f
-                val maxX = parent.width - if (parent.clipToPadding) parent.paddingRight.toFloat() else 0f
-                val minY = if (parent.clipToPadding) parent.paddingTop.toFloat() else 0f
-                val maxY = parent.height - if (parent.clipToPadding) parent.paddingBottom.toFloat() else 0f
-                scale = minOf(scale, 2f * minOf(centerX - minX, maxX - centerX) / view.width)
-                scale = minOf(scale, 2f * minOf(centerY - minY, maxY - centerY) / view.height)
+            val dx = child.left + child.translationX - parent.scrollX
+            val dy = child.top + child.translationY - parent.scrollY
+            bounds.offset(dx, dy)
+            pivot[0] += dx
+            pivot[1] += dy
+            val padded = parent.clipToPadding && (parent.paddingLeft != 0 ||
+                parent.paddingTop != 0 || parent.paddingRight != 0 || parent.paddingBottom != 0)
+            if (parent.clipChildren || padded || parent.parent !is ViewGroup) {
+                scale = limitScale(bounds, pivot, RectF(
+                    if (padded) parent.paddingLeft.toFloat() else 0f,
+                    if (padded) parent.paddingTop.toFloat() else 0f,
+                    parent.width - if (padded) parent.paddingRight.toFloat() else 0f,
+                    parent.height - if (padded) parent.paddingBottom.toFloat() else 0f
+                ), scale)
             }
-            left += parent.left - parent.scrollX
-            top += parent.top - parent.scrollY
+            parent.clipBounds?.let { scale = limitScale(bounds, pivot, RectF(it), scale) }
+            if (parent.clipToOutline) {
+                scale = limitScale(bounds, pivot,
+                    RectF(0f, 0f, parent.width.toFloat(), parent.height.toFloat()), scale)
+            }
+            parent.matrix.mapRect(bounds)
+            parent.matrix.mapPoints(pivot)
+            child = parent
             parent = parent.parent as? ViewGroup
         }
         return scale.coerceIn(1f, preferredScale)
+    }
+
+    private fun limitScale(bounds: RectF, pivot: FloatArray, clip: RectF, preferred: Float): Float {
+        var scale = preferred
+        val extents = floatArrayOf(pivot[0] - bounds.left, bounds.right - pivot[0],
+            pivot[1] - bounds.top, bounds.bottom - pivot[1])
+        val room = floatArrayOf(pivot[0] - clip.left, clip.right - pivot[0],
+            pivot[1] - clip.top, clip.bottom - pivot[1])
+        for (i in extents.indices) {
+            if (extents[i] > 0f) scale = minOf(scale, room[i] / extents[i])
+        }
+        return scale
     }
 
     override fun onActivityStarted(activity: Activity) = Unit
@@ -202,58 +252,32 @@ object TvFocusHighlighter : Application.ActivityLifecycleCallbacks {
     override fun onActivityStopped(activity: Activity) = Unit
     override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
 
-    private class HighContrastFocusRing(density: Float, isTv: Boolean, brandBlue: Int) : Drawable() {
-        private val boundsRect = RectF()
-        private val outerWidth = (if (isTv) 7f else 6f) * density
-        private val innerWidth = (if (isTv) 3f else 2.5f) * density
-        private val radius = 16f * density
-        private val outerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            style = Paint.Style.STROKE
-            strokeWidth = outerWidth
-            color = if (isTv) brandBlue else Color.WHITE
+    private fun prepareBackground(view: View) {
+        val background = view.background
+        if (backgrounds[view]?.managed === background && backgrounds.containsKey(view)) return
+        val copy = background?.constantState?.newDrawable(view.resources)?.mutate()
+        if (copy != null) {
+            copy.state = view.drawableState
+            FocusRingDrawable.removeBackgroundStroke(copy)
+            setBackgroundPreservingPadding(view, copy)
         }
-        private val innerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            style = Paint.Style.STROKE
-            strokeWidth = innerWidth
-            color = Color.rgb(30, 33, 76)
-        }
-
-        override fun draw(canvas: Canvas) {
-            val outerInset = outerWidth / 2f
-            boundsRect.set(
-                bounds.left + outerInset,
-                bounds.top + outerInset,
-                bounds.right - outerInset,
-                bounds.bottom - outerInset
-            )
-            canvas.drawRoundRect(boundsRect, radius, radius, outerPaint)
-
-            val innerInset = outerWidth + innerWidth / 2f
-            boundsRect.set(
-                bounds.left + innerInset,
-                bounds.top + innerInset,
-                bounds.right - innerInset,
-                bounds.bottom - innerInset
-            )
-            canvas.drawRoundRect(boundsRect, radius, radius, innerPaint)
-        }
-
-        override fun setAlpha(alpha: Int) {
-            outerPaint.alpha = alpha
-            innerPaint.alpha = alpha
-            invalidateSelf()
-        }
-
-        override fun setColorFilter(colorFilter: ColorFilter?) {
-            outerPaint.colorFilter = colorFilter
-            innerPaint.colorFilter = colorFilter
-            invalidateSelf()
-        }
-
-        @Deprecated("Deprecated in Android")
-        override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
+        backgrounds[view] = BackgroundVisuals(background, copy ?: background)
     }
 
+    private fun setBackgroundPreservingPadding(view: View, background: Drawable?) {
+        val left = view.paddingLeft
+        val top = view.paddingTop
+        val right = view.paddingRight
+        val bottom = view.paddingBottom
+        val relative = view.isPaddingRelative
+        val start = view.paddingStart
+        val end = view.paddingEnd
+        view.background = background
+        if (relative) view.setPaddingRelative(start, top, end, bottom)
+        else view.setPadding(left, top, right, bottom)
+    }
+
+    private const val NO_FOCUS_ZOOM_TAG = "focus_without_zoom"
     private const val FOCUS_SCALE = 1.055f
     private const val TV_FOCUS_SCALE = 1.075f
     private const val FOCUS_LIFT_DP = 8f

@@ -453,4 +453,21 @@
     <string name="daily_check_in_message">Drücken Sie die Taste, um zu bestätigen, dass es Ihnen gut geht.</string>
     <string name="daily_check_in_button">Mir geht es gut</string>
     <string name="daily_check_in_error">Ihre Bestätigung konnte nicht gesendet werden. Prüfen Sie die Internetverbindung und versuchen Sie es erneut.</string>
+    <string name="search_contacts">Kontakte suchen</string>
+
+    <!-- Localized feedback for favorites and profile changes. -->
+    <string name="favorite_added_announcement">%1$s zu Favoriten hinzugefügt</string>
+    <string name="favorite_removed_announcement">%1$s aus Favoriten entfernt</string>
+    <string name="priority_added_announcement">%1$s als Priorität festgelegt</string>
+    <string name="priority_removed_announcement">%1$s aus Prioritäten entfernt</string>
+    <string name="contacts_load_failed">Kontakte konnten nicht geladen werden. Bitte erneut versuchen.</string>
+    <string name="profile_load_failed">Profil konnte nicht geladen werden</string>
+    <string name="username_empty">Bitte einen Benutzernamen eingeben</string>
+    <string name="username_too_short">Der Benutzername muss mindestens 3 Zeichen enthalten</string>
+    <string name="username_updated">Benutzername aktualisiert</string>
+    <string name="username_update_failed">Benutzername konnte nicht aktualisiert werden</string>
+    <string name="avatar_updated">Profilbild aktualisiert</string>
+    <string name="avatar_update_failed">Profilbild konnte nicht aktualisiert werden</string>
+    <string name="avatar_removed">Profilbild entfernt</string>
+    <string name="avatar_remove_failed">Profilbild konnte nicht entfernt werden</string>
 </resources>

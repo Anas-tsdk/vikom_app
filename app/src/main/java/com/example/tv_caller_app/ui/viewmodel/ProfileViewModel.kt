@@ -1,6 +1,8 @@
 package com.example.tv_caller_app.ui.viewmodel
 
 import android.app.Application
+import com.example.tv_caller_app.R
+import com.example.tv_caller_app.ui.util.localizedString
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -54,11 +56,11 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                     Log.d(TAG, "Profile loaded: ${profile.username}")
                 } else {
                     _email.value = profileRepository.getStoredEmail() ?: ""
-                    _errorMessage.value = "Kunne ikke laste profil"
+                    _errorMessage.value = getApplication<Application>().localizedString(R.string.profile_load_failed)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading profile", e)
-                _errorMessage.value = "Feil: ${e.message}"
+                _errorMessage.value = getApplication<Application>().localizedString(R.string.profile_load_failed)
             } finally {
                 _isLoading.value = false
             }
@@ -68,11 +70,11 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     fun updateUsername(newUsername: String) {
         val trimmed = newUsername.trim()
         if (trimmed.isBlank()) {
-            _errorMessage.value = "Brukernavn kan ikke være tomt"
+            _errorMessage.value = getApplication<Application>().localizedString(R.string.username_empty)
             return
         }
         if (trimmed.length < 3) {
-            _errorMessage.value = "Brukernavn må være minst 3 tegn"
+            _errorMessage.value = getApplication<Application>().localizedString(R.string.username_too_short)
             return
         }
         if (trimmed == _username.value) {
@@ -87,19 +89,19 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                 val result = profileRepository.updateUsername(trimmed)
                 if (result.isSuccess) {
                     _username.value = trimmed
-                    _successMessage.value = "Brukernavn oppdatert"
+                    _successMessage.value = getApplication<Application>().localizedString(R.string.username_updated)
                     Log.d(TAG, "Username updated to: $trimmed")
                 } else {
                     val error = result.exceptionOrNull()
                     _errorMessage.value = if (error is UsernameNotUniqueException) {
-                        error.message
+                        getApplication<Application>().localizedString(R.string.username_taken)
                     } else {
-                        "Kunne ikke oppdatere brukernavn"
+                        getApplication<Application>().localizedString(R.string.username_update_failed)
                     }
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error updating username", e)
-                _errorMessage.value = "Feil: ${e.message}"
+                _errorMessage.value = getApplication<Application>().localizedString(R.string.username_update_failed)
             } finally {
                 _isLoading.value = false
             }
@@ -114,11 +116,11 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
             try {
                 val url = profileRepository.uploadAvatar(imageBytes)
                 _avatarUrl.value = url
-                _successMessage.value = "Profilbilde oppdatert"
+                _successMessage.value = getApplication<Application>().localizedString(R.string.avatar_updated)
                 Log.d(TAG, "Avatar uploaded: $url")
             } catch (e: Exception) {
                 Log.e(TAG, "Error uploading avatar", e)
-                _errorMessage.value = "Upload failed: ${e.message}"
+                _errorMessage.value = getApplication<Application>().localizedString(R.string.avatar_update_failed)
             } finally {
                 _isLoading.value = false
             }
@@ -134,14 +136,14 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                 val success = profileRepository.setPresetAvatar(avatarName)
                 if (success) {
                     _avatarUrl.value = "preset:$avatarName"
-                    _successMessage.value = "Avatar oppdatert"
+                    _successMessage.value = getApplication<Application>().localizedString(R.string.avatar_updated)
                     Log.d(TAG, "Preset avatar set: $avatarName")
                 } else {
-                    _errorMessage.value = "Kunne ikke sette avatar"
+                    _errorMessage.value = getApplication<Application>().localizedString(R.string.avatar_update_failed)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error setting preset avatar", e)
-                _errorMessage.value = "Feil: ${e.message}"
+                _errorMessage.value = getApplication<Application>().localizedString(R.string.avatar_update_failed)
             } finally {
                 _isLoading.value = false
             }
@@ -157,13 +159,13 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                 val success = profileRepository.deleteAvatar()
                 if (success) {
                     _avatarUrl.value = null
-                    _successMessage.value = "Profilbilde fjernet"
+                    _successMessage.value = getApplication<Application>().localizedString(R.string.avatar_removed)
                 } else {
-                    _errorMessage.value = "Kunne ikke fjerne bilde"
+                    _errorMessage.value = getApplication<Application>().localizedString(R.string.avatar_remove_failed)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error removing avatar", e)
-                _errorMessage.value = "Feil: ${e.message}"
+                _errorMessage.value = getApplication<Application>().localizedString(R.string.avatar_remove_failed)
             } finally {
                 _isLoading.value = false
             }

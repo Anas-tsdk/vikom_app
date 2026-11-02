@@ -77,10 +77,13 @@ class ManageFavoritesFragment : Fragment() {
 
         val lm = rv.layoutManager as LinearLayoutManager
 
-        fun focusButtonInRow(targetPos: Int, btnId: Int, direction: Int) {
+        var pendingFocusListener: RecyclerView.OnScrollListener? = null
+        fun focusButtonInRow(targetPos: Int, btnId: Int) {
+            pendingFocusListener?.let(rv::removeOnScrollListener)
+            pendingFocusListener = null
             fun focusIn(itemView: View) {
                 val target = itemView.findViewById<View>(btnId)
-                if (target != null && target.visibility == View.VISIBLE && target.isFocusable) {
+                if (target != null && target.visibility == View.VISIBLE && target.isFocusable && target.isEnabled) {
                     target.requestFocus()
                 } else {
                     itemView.findViewById<View>(R.id.btn_favorite_toggle)?.requestFocus()
@@ -90,20 +93,18 @@ class ManageFavoritesFragment : Fragment() {
             if (targetView != null) {
                 focusIn(targetView)
             } else {
-                val padPos = if (direction < 0) {
-                    maxOf(0, targetPos - 1)
-                } else {
-                    minOf(adapter.itemCount - 1, targetPos + 1)
-                }
-                rv.smoothScrollToPosition(padPos)
-                rv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                val listener = object : RecyclerView.OnScrollListener() {
                     override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                         if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                             rv.removeOnScrollListener(this)
+                            pendingFocusListener = null
                             lm.findViewByPosition(targetPos)?.let { focusIn(it) }
                         }
                     }
-                })
+                }
+                pendingFocusListener = listener
+                rv.addOnScrollListener(listener)
+                rv.smoothScrollToPosition(targetPos)
             }
         }
 
@@ -118,11 +119,11 @@ class ManageFavoritesFragment : Fragment() {
                     if (pos == RecyclerView.NO_POSITION) return@OnKeyListener false
                     when (keyCode) {
                         KeyEvent.KEYCODE_DPAD_UP -> {
-                            if (pos > 0) { focusButtonInRow(pos - 1, R.id.btn_favorite_toggle, -1); true }
+                            if (pos > 0) { focusButtonInRow(pos - 1, R.id.btn_favorite_toggle); true }
                             else false
                         }
                         KeyEvent.KEYCODE_DPAD_DOWN -> {
-                            if (pos < adapter.itemCount - 1) { focusButtonInRow(pos + 1, R.id.btn_favorite_toggle, +1); true }
+                            if (pos < adapter.itemCount - 1) { focusButtonInRow(pos + 1, R.id.btn_favorite_toggle); true }
                             else false
                         }
                         else -> false
@@ -135,11 +136,11 @@ class ManageFavoritesFragment : Fragment() {
                     if (pos == RecyclerView.NO_POSITION) return@OnKeyListener false
                     when (keyCode) {
                         KeyEvent.KEYCODE_DPAD_UP -> {
-                            if (pos > 0) { focusButtonInRow(pos - 1, R.id.btn_priority_toggle, -1); true }
+                            if (pos > 0) { focusButtonInRow(pos - 1, R.id.btn_priority_toggle); true }
                             else false
                         }
                         KeyEvent.KEYCODE_DPAD_DOWN -> {
-                            if (pos < adapter.itemCount - 1) { focusButtonInRow(pos + 1, R.id.btn_priority_toggle, +1); true }
+                            if (pos < adapter.itemCount - 1) { focusButtonInRow(pos + 1, R.id.btn_priority_toggle); true }
                             else false
                         }
                         else -> false
@@ -277,6 +278,10 @@ class ManageFavoritesFragment : Fragment() {
                 holder.avatarInitial.text = contact.username.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
             }
 
+            if (holder.btnPriority.hasFocus() &&
+                (!contact.isFavorite || (contact.prioritySlot == 0 && isPriorityFull()))) {
+                holder.btnFavorite.requestFocus()
+            }
             applyFavoriteStyle(holder.btnFavorite, holder.iconFavorite, holder.txtFavoriteLabel, contact.isFavorite)
             applyPriorityStyle(holder.btnPriority, holder.iconPriority, holder.txtPriorityLabel, contact)
 
@@ -293,7 +298,9 @@ class ManageFavoritesFragment : Fragment() {
                 val c = contacts[pos]
                 val adding = !c.isFavorite
                 val name = if (!c.nickname.isNullOrBlank()) "${c.username} (${c.nickname})" else c.username
-                val msg = if (adding) "$name er lagt til som favoritt" else "$name er fjernet som favoritt"
+                val msg = holder.itemView.context.getString(
+                    if (adding) R.string.favorite_added_announcement else R.string.favorite_removed_announcement, name
+                )
                 announceAccessibility(holder.itemView, msg)
                 onToggleFavorite(c.id, adding)
             }
@@ -305,10 +312,15 @@ class ManageFavoritesFragment : Fragment() {
                 if (!c.isFavorite) return@setOnClickListener
                 if (c.prioritySlot == 0 && isPriorityFull()) return@setOnClickListener
                 val name = if (!c.nickname.isNullOrBlank()) "${c.username} (${c.nickname})" else c.username
-                val msg = if (c.prioritySlot > 0) "$name er fjernet fra prioritet" else "$name er satt som prioritert"
+                val msg = holder.itemView.context.getString(
+                    if (c.prioritySlot > 0) R.string.priority_removed_announcement else R.string.priority_added_announcement, name
+                )
                 announceAccessibility(holder.itemView, msg)
                 onTogglePriority(c.id)
-                holder.btnPriority.post { holder.btnPriority.requestFocus() }
+                holder.btnPriority.post {
+                    if (holder.btnPriority.isShown && holder.btnPriority.isEnabled) holder.btnPriority.requestFocus()
+                    else holder.btnFavorite.requestFocus()
+                }
             }
         }
 
@@ -341,7 +353,7 @@ class ManageFavoritesFragment : Fragment() {
                 isPriorityFull() -> {
                     container.visibility = View.VISIBLE
                     container.isEnabled = false
-                    container.isFocusable = true
+                    container.isFocusable = false
                     container.alpha = 0.4f
                     label.setText(R.string.priority_no_space)
                     container.setBackgroundResource(R.drawable.button_secondary)

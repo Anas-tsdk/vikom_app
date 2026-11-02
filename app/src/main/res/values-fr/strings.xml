@@ -443,4 +443,21 @@
     <plurals name="ai_medicine_count"><item quantity="one">%1$d médicament</item><item quantity="other">%1$d médicaments</item></plurals>
     <plurals name="ai_appointment_count"><item quantity="one">%1$d rendez-vous à venir</item><item quantity="other">%1$d rendez-vous à venir</item></plurals>
     <plurals name="ai_daily_task_count"><item quantity="one">%1$d tâche quotidienne</item><item quantity="other">%1$d tâches quotidiennes</item></plurals>
+    <string name="search_contacts">Rechercher des contacts</string>
+
+    <!-- Localized feedback for favorites and profile changes. -->
+    <string name="favorite_added_announcement">%1$s ajouté aux favoris</string>
+    <string name="favorite_removed_announcement">%1$s retiré des favoris</string>
+    <string name="priority_added_announcement">%1$s défini comme prioritaire</string>
+    <string name="priority_removed_announcement">%1$s retiré des priorités</string>
+    <string name="contacts_load_failed">Impossible de charger les contacts. Réessayez.</string>
+    <string name="profile_load_failed">Impossible de charger votre profil</string>
+    <string name="username_empty">Saisissez un nom d’utilisateur</string>
+    <string name="username_too_short">Le nom d’utilisateur doit contenir au moins 3 caractères</string>
+    <string name="username_updated">Nom d’utilisateur mis à jour</string>
+    <string name="username_update_failed">Impossible de modifier votre nom d’utilisateur</string>
+    <string name="avatar_updated">Photo de profil mise à jour</string>
+    <string name="avatar_update_failed">Impossible de modifier votre photo de profil</string>
+    <string name="avatar_removed">Photo de profil supprimée</string>
+    <string name="avatar_remove_failed">Impossible de supprimer votre photo de profil</string>
 </resources>

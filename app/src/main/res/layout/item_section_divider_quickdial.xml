@@ -19,15 +19,14 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Favoritter"
+            android:text="@string/section_favorites"
             android:textSize="@dimen/text_caption"
             android:textColor="@color/vk_secondary"
             android:drawableStart="@drawable/ic_star_filled"
             android:drawablePadding="4dp"
             android:gravity="center_vertical"
             android:layout_marginEnd="@dimen/padding_large"
-            android:importantForAccessibility="no"
-            tools:ignore="HardcodedText" />
+            android:importantForAccessibility="no" />
 
         <LinearLayout
             android:id="@+id/btn_manage_favorites"

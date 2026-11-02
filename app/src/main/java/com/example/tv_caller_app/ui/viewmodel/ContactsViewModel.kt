@@ -1,6 +1,8 @@
 package com.example.tv_caller_app.ui.viewmodel
 
 import android.app.Application
+import com.example.tv_caller_app.R
+import com.example.tv_caller_app.ui.util.localizedString
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -63,11 +65,11 @@ class ContactsViewModel(application: Application) : AndroidViewModel(application
                 applyFilter()
 
                 if (allContactsList.isEmpty()) {
-                    _errorMessage.value = "No contacts found"
+                    _errorMessage.value = getApplication<Application>().localizedString(R.string.no_contacts_found)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading contacts", e)
-                _errorMessage.value = "Failed to load contacts: ${e.message}"
+                _errorMessage.value = getApplication<Application>().localizedString(R.string.contacts_load_failed)
                 allContactsList = emptyList()
                 _totalContactCount.value = 0
                 _displayedContacts.value = emptyList()
@@ -92,7 +94,7 @@ class ContactsViewModel(application: Application) : AndroidViewModel(application
                 applyFilter()
             } catch (e: Exception) {
                 Log.e(TAG, "Error refreshing contacts", e)
-                _errorMessage.value = "Failed to refresh contacts: ${e.message}"
+                _errorMessage.value = getApplication<Application>().localizedString(R.string.contacts_load_failed)
             } finally {
                 _isLoading.value = false
             }

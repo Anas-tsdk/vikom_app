@@ -467,4 +467,21 @@
     <string name="daily_check_in_message">Press the button to confirm that you are okay.</string>
     <string name="daily_check_in_button">I am okay</string>
     <string name="daily_check_in_error">Your confirmation could not be sent. Check your internet connection and try again.</string>
+    <string name="search_contacts">Search contacts</string>
+
+    <!-- Localized feedback for favorites and profile changes. -->
+    <string name="favorite_added_announcement">%1$s added to favorites</string>
+    <string name="favorite_removed_announcement">%1$s removed from favorites</string>
+    <string name="priority_added_announcement">%1$s set as a priority</string>
+    <string name="priority_removed_announcement">%1$s removed from priorities</string>
+    <string name="contacts_load_failed">Could not load contacts. Please try again.</string>
+    <string name="profile_load_failed">Could not load your profile</string>
+    <string name="username_empty">Enter a username</string>
+    <string name="username_too_short">Username must contain at least 3 characters</string>
+    <string name="username_updated">Username updated</string>
+    <string name="username_update_failed">Could not update your username</string>
+    <string name="avatar_updated">Profile picture updated</string>
+    <string name="avatar_update_failed">Could not update your profile picture</string>
+    <string name="avatar_removed">Profile picture removed</string>
+    <string name="avatar_remove_failed">Could not remove your profile picture</string>
 </resources>

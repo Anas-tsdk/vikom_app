@@ -502,4 +502,21 @@
     <string name="daily_check_in_message">Trykk på knappen for å bekrefte at du har det okay.</string>
     <string name="daily_check_in_button">Jeg har det okay</string>
     <string name="daily_check_in_error">Bekreftelsen kunne ikke sendes. Kontroller internettforbindelsen og prøv igjen.</string>
+    <string name="search_contacts">Søk Kontakt</string>
+
+    <!-- Localized feedback for favorites and profile changes. -->
+    <string name="favorite_added_announcement">%1$s er lagt til som favoritt</string>
+    <string name="favorite_removed_announcement">%1$s er fjernet som favoritt</string>
+    <string name="priority_added_announcement">%1$s er satt som prioritert</string>
+    <string name="priority_removed_announcement">%1$s er fjernet fra prioritet</string>
+    <string name="contacts_load_failed">Kunne ikke laste kontakter. Prøv igjen.</string>
+    <string name="profile_load_failed">Kunne ikke laste profil</string>
+    <string name="username_empty">Brukernavn kan ikke være tomt</string>
+    <string name="username_too_short">Brukernavn må være minst 3 tegn</string>
+    <string name="username_updated">Brukernavn oppdatert</string>
+    <string name="username_update_failed">Kunne ikke oppdatere brukernavn</string>
+    <string name="avatar_updated">Profilbilde oppdatert</string>
+    <string name="avatar_update_failed">Kunne ikke oppdatere profilbilde</string>
+    <string name="avatar_removed">Profilbilde fjernet</string>
+    <string name="avatar_remove_failed">Kunne ikke fjerne profilbilde</string>
 </resources>

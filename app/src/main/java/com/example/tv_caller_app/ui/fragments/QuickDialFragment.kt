@@ -525,11 +525,10 @@ class QuickDialFragment : Fragment() {
         )
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            holder.txtFavoritesLabel.text = when (favoriteCount) {
-                0 -> "Favoritter"
-                1 -> "Favoritter · Du har 1 favorittkontakt"
-                else -> "Favoritter · Du har $favoriteCount favorittkontakter"
-            }
+            holder.txtFavoritesLabel.text = holder.itemView.context.getString(
+                if (favoriteCount == 0) R.string.section_favorites else R.string.favorites_count,
+                favoriteCount
+            )
             holder.btnManageFavorites.isEnabled = buttonEnabled
             holder.btnManageFavorites.isFocusable = true
             holder.btnManageFavorites.alpha = if (buttonEnabled) 1f else 0.4f

@@ -25,12 +25,23 @@
         android:gravity="center"
         android:text="@string/language_dialog_subtitle" />
 
-    <LinearLayout
-        android:id="@+id/language_options_container"
+    <ScrollView
+        android:id="@+id/language_options_scroll"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:layout_marginTop="16dp"
-        android:orientation="vertical" />
+        android:focusable="false"
+        android:descendantFocusability="afterDescendants"
+        android:scrollbars="vertical"
+        android:fadeScrollbars="false">
+
+        <LinearLayout
+            android:id="@+id/language_options_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </ScrollView>
 
     <TextView
         android:id="@+id/btn_language_cancel"

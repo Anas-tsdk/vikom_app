@@ -453,4 +453,21 @@
     <string name="daily_check_in_message">Vahvista painamalla painiketta, että voit hyvin.</string>
     <string name="daily_check_in_button">Voin hyvin</string>
     <string name="daily_check_in_error">Vahvistusta ei voitu lähettää. Tarkista internetyhteys ja yritä uudelleen.</string>
+    <string name="search_contacts">Etsi yhteystietoja</string>
+
+    <!-- Localized feedback for favorites and profile changes. -->
+    <string name="favorite_added_announcement">%1$s lisätty suosikkeihin</string>
+    <string name="favorite_removed_announcement">%1$s poistettu suosikeista</string>
+    <string name="priority_added_announcement">%1$s asetettu ensisijaiseksi</string>
+    <string name="priority_removed_announcement">%1$s poistettu ensisijaisista</string>
+    <string name="contacts_load_failed">Yhteystietoja ei voitu ladata. Yritä uudelleen.</string>
+    <string name="profile_load_failed">Profiilia ei voitu ladata</string>
+    <string name="username_empty">Anna käyttäjänimi</string>
+    <string name="username_too_short">Käyttäjänimessä on oltava vähintään 3 merkkiä</string>
+    <string name="username_updated">Käyttäjänimi päivitetty</string>
+    <string name="username_update_failed">Käyttäjänimeä ei voitu päivittää</string>
+    <string name="avatar_updated">Profiilikuva päivitetty</string>
+    <string name="avatar_update_failed">Profiilikuvaa ei voitu päivittää</string>
+    <string name="avatar_removed">Profiilikuva poistettu</string>
+    <string name="avatar_remove_failed">Profiilikuvaa ei voitu poistaa</string>
 </resources>

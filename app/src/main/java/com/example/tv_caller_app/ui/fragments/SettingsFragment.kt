@@ -166,6 +166,7 @@ class SettingsFragment : Fragment() {
         var selectedRow: View? = null
         options.forEachIndexed { index, (code, labelRes) ->
             val row = layoutInflater.inflate(R.layout.view_language_option, container, false)
+            row.id = View.generateViewId()
             val selected = settings.language == code || (code == "nb" && settings.language == "no")
             row.findViewById<TextView>(R.id.txt_language_option_label).setText(labelRes)
             row.findViewById<TextView>(R.id.txt_language_option_check).visibility =
@@ -194,11 +195,28 @@ class SettingsFragment : Fragment() {
             container.addView(row)
             if (selected) selectedRow = row
         }
-        dialog.findViewById<TextView>(R.id.btn_language_cancel).setOnClickListener { dialog.dismiss() }
+        val cancel = dialog.findViewById<TextView>(R.id.btn_language_cancel)
+        cancel.setOnClickListener { dialog.dismiss() }
+        for (index in 0 until container.childCount) {
+            val row = container.getChildAt(index)
+            row.nextFocusUpId = if (index == 0) row.id else container.getChildAt(index - 1).id
+            row.nextFocusDownId = if (index == container.childCount - 1) cancel.id else container.getChildAt(index + 1).id
+            row.nextFocusForwardId = row.nextFocusDownId
+        }
+        cancel.nextFocusUpId = container.getChildAt(container.childCount - 1).id
+        cancel.nextFocusDownId = cancel.id
         dialog.show()
         val maxWidth = (resources.displayMetrics.widthPixels * 0.92f).toInt()
         val preferred = (440 * resources.displayMetrics.density).toInt()
-        dialog.window?.setLayout(preferred.coerceAtMost(maxWidth), ViewGroup.LayoutParams.WRAP_CONTENT)
-        (selectedRow ?: container.getChildAt(0))?.requestFocus()
+        val availableHeight = requireActivity().window.decorView.height.takeIf { it > 0 }
+            ?: resources.displayMetrics.heightPixels
+        dialog.window?.setLayout(preferred.coerceAtMost(maxWidth), (availableHeight * 0.9f).toInt())
+        val initialFocus = selectedRow ?: container.getChildAt(0)
+        initialFocus?.post {
+            initialFocus.requestFocus()
+            initialFocus.requestRectangleOnScreen(
+                android.graphics.Rect(0, 0, initialFocus.width, initialFocus.height), true
+            )
+        }
     }
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
+    android:tag="focus_without_zoom"
             android:clipChildren="false"
             android:clipToPadding="false" xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -40,6 +41,7 @@
             android:background="@drawable/button_secondary"
             android:clickable="true"
             android:focusable="true"
+            android:defaultFocusHighlightEnabled="false"
             android:minWidth="@dimen/button_width"
             android:minHeight="@dimen/button_height"
             android:padding="@dimen/padding_standard"
@@ -86,6 +88,7 @@
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/button_settings_item"
                 android:focusable="true"
+            android:defaultFocusHighlightEnabled="false"
                 android:clickable="true">
 
                 <TextView
@@ -118,6 +121,7 @@
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/button_settings_item"
                 android:focusable="true"
+            android:defaultFocusHighlightEnabled="false"
                 android:clickable="true">
 
                 <TextView
@@ -150,6 +154,7 @@
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/button_settings_item"
                 android:focusable="true"
+            android:defaultFocusHighlightEnabled="false"
                 android:clickable="true">
 
                 <TextView
@@ -189,6 +194,7 @@
                     android:paddingVertical="12dp"
                     android:background="@drawable/button_settings_item"
                     android:focusable="true"
+            android:defaultFocusHighlightEnabled="false"
                     android:clickable="true">
 
                     <TextView
@@ -249,6 +255,7 @@
         android:paddingVertical="12dp"
         android:background="@drawable/button_settings_item_danger"
         android:focusable="true"
+            android:defaultFocusHighlightEnabled="false"
         android:clickable="true" />
 
 </LinearLayout>

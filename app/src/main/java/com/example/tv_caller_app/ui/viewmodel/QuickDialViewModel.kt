@@ -1,6 +1,8 @@
 package com.example.tv_caller_app.ui.viewmodel
 
 import android.app.Application
+import com.example.tv_caller_app.R
+import com.example.tv_caller_app.ui.util.localizedString
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -83,7 +85,7 @@ class QuickDialViewModel(application: Application) : AndroidViewModel(applicatio
                 _onlineCount.value = onlineIds.intersect(raw.map { it.contactId }.toSet()).size
             } catch (e: Exception) {
                 Log.e(TAG, "Error refreshing contacts", e)
-                _errorMessage.value = "Failed to refresh contacts: ${e.message}"
+                _errorMessage.value = app.localizedString(R.string.contacts_load_failed)
             } finally {
                 _isLoading.value = false
                 refreshJob = null
@@ -125,7 +127,7 @@ class QuickDialViewModel(application: Application) : AndroidViewModel(applicatio
                 _allContacts.postValue(allContactsList)
                 _allFavorites.postValue(sortedFavorites(allContactsList))
             } else {
-                _errorMessage.postValue("Kunne ikke oppdatere favoritt")
+                _errorMessage.postValue(app.localizedString(R.string.update_favorite_failed))
             }
         }
     }

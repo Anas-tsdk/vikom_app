@@ -1,5 +1,6 @@
 package com.example.tv_caller_app.ui.adapters
 
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +9,7 @@ import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tv_caller_app.R
 import com.example.tv_caller_app.data.datasource.AppointmentResponse
@@ -34,11 +36,17 @@ sealed class DayGroupedItem {
 }
 
 class DayGroupedAppointmentAdapter(
-    private val items: List<DayGroupedItem>,
-    private val responseInProgressId: Int? = null,
+    private var items: List<DayGroupedItem>,
+    private var responseInProgressId: Int? = null,
     private val onRespond: (Appointment, AppointmentResponse) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val expanded = mutableSetOf<Int>()
+    private var respondableIds = respondableIds(items)
+
+    private fun respondableIds(rows: List<DayGroupedItem>): Set<Int> = rows
+        .filterIsInstance<DayGroupedItem.Visit>()
+        .filter { it.appointment.canRespond() }
+        .map { it.appointment.id }.toSet()
 
     companion object {
         private const val VIEW_TYPE_HEADER = 0
@@ -77,6 +85,41 @@ class DayGroupedAppointmentAdapter(
         }
     }
 
+    init { setHasStableIds(true) }
+
+    override fun getItemId(position: Int): Long = itemId(items[position])
+
+    private fun itemId(item: DayGroupedItem): Long = when (item) {
+        is DayGroupedItem.SectionHeader -> Long.MIN_VALUE
+        is DayGroupedItem.Visit -> item.appointment.id.toLong()
+    }
+
+    fun update(newItems: List<DayGroupedItem>, busyId: Int?) {
+        val oldItems = items
+        val oldBusyId = responseInProgressId
+        val previousRespondable = respondableIds
+        val nextRespondable = respondableIds(newItems)
+        val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getOldListSize() = oldItems.size
+            override fun getNewListSize() = newItems.size
+            override fun areItemsTheSame(old: Int, new: Int) = itemId(oldItems[old]) == itemId(newItems[new])
+            override fun areContentsTheSame(old: Int, new: Int): Boolean {
+                val previous = oldItems[old]
+                val next = newItems[new]
+                val sameResponseAvailability = previous !is DayGroupedItem.Visit || next !is DayGroupedItem.Visit ||
+                    (previous.appointment.id in previousRespondable) == (next.appointment.id in nextRespondable)
+                return previous == next && sameResponseAvailability &&
+                    (previous is DayGroupedItem.Visit && previous.appointment.id == oldBusyId) ==
+                    (next is DayGroupedItem.Visit && next.appointment.id == busyId)
+            }
+        })
+        items = newItems
+        responseInProgressId = busyId
+        respondableIds = nextRespondable
+        expanded.retainAll(newItems.filterIsInstance<DayGroupedItem.Visit>().map { it.appointment.id }.toSet())
+        diff.dispatchUpdatesTo(this)
+    }
+
     override fun getItemCount(): Int = items.size
 
     override fun getItemViewType(position: Int): Int = when (items[position]) {
@@ -96,7 +139,7 @@ class DayGroupedAppointmentAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = items[position]) {
             is DayGroupedItem.SectionHeader -> (holder as HeaderViewHolder).bind(item)
-            is DayGroupedItem.Visit -> (holder as VisitViewHolder).bind(item, expanded.contains(position))
+            is DayGroupedItem.Visit -> (holder as VisitViewHolder).bind(item, expanded.contains(item.appointment.id))
         }
     }
 
@@ -147,18 +190,40 @@ class DayGroupedAppointmentAdapter(
 
             val canRespond = appointment.canRespond()
             val busy = responseInProgressId == appointment.id
+            // Keep remote focus on the card when its action is hidden/disabled.
+            if ((!canRespond || busy) && (accept.hasFocus() || decline.hasFocus())) card.requestFocus()
             responseActions.visibility = if (canRespond) View.VISIBLE else View.GONE
             accept.isEnabled = !busy
             decline.isEnabled = !busy
             accept.alpha = if (busy) 0.55f else 1f
             decline.alpha = if (busy) 0.55f else 1f
-            accept.setOnClickListener { if (!busy) onRespond(appointment, AppointmentResponse.ACCEPTED) }
-            decline.setOnClickListener { if (!busy) onRespond(appointment, AppointmentResponse.DECLINED) }
+            accept.setOnClickListener { if (!busy && appointment.canRespond()) onRespond(appointment, AppointmentResponse.ACCEPTED) }
+            decline.setOnClickListener { if (!busy && appointment.canRespond()) onRespond(appointment, AppointmentResponse.DECLINED) }
+
+            card.setOnKeyListener { _, key, event ->
+                event.action == KeyEvent.ACTION_DOWN && key == KeyEvent.KEYCODE_DPAD_DOWN &&
+                    canRespond && !busy && decline.requestFocus()
+            }
+            decline.setOnKeyListener { _, key, event ->
+                if (event.action != KeyEvent.ACTION_DOWN) false else when (key) {
+                    KeyEvent.KEYCODE_DPAD_UP -> card.requestFocus()
+                    KeyEvent.KEYCODE_DPAD_RIGHT -> accept.requestFocus()
+                    KeyEvent.KEYCODE_DPAD_DOWN -> if (accept.top > decline.top) accept.requestFocus() else false
+                    else -> false
+                }
+            }
+            accept.setOnKeyListener { _, key, event ->
+                if (event.action != KeyEvent.ACTION_DOWN) false else when (key) {
+                    KeyEvent.KEYCODE_DPAD_LEFT -> decline.requestFocus()
+                    KeyEvent.KEYCODE_DPAD_UP -> if (accept.top > decline.top) decline.requestFocus() else card.requestFocus()
+                    else -> false
+                }
+            }
 
             card.setOnClickListener {
                 val position = bindingAdapterPosition
                 if (position == RecyclerView.NO_POSITION) return@setOnClickListener
-                if (!expanded.add(position)) expanded.remove(position)
+                if (!expanded.add(appointment.id)) expanded.remove(appointment.id)
                 notifyItemChanged(position)
             }
         }

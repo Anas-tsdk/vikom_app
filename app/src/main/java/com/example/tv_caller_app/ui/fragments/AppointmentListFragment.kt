@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.example.tv_caller_app.R
 import com.example.tv_caller_app.data.datasource.AppointmentResponse
 import com.example.tv_caller_app.ui.adapters.DayGroupedAppointmentAdapter
@@ -25,6 +26,7 @@ class AppointmentListFragment : Fragment() {
         AppointmentsViewModelFactory(requireActivity().application)
     }
 
+    private lateinit var adapter: DayGroupedAppointmentAdapter
     private lateinit var list: RecyclerView
     private lateinit var stateText: TextView
     private lateinit var retry: TextView
@@ -44,6 +46,9 @@ class AppointmentListFragment : Fragment() {
         }
         retry.setOnClickListener { viewModel.load() }
         list.layoutManager = LinearLayoutManager(requireContext())
+        adapter = DayGroupedAppointmentAdapter(emptyList(), onRespond = ::respond)
+        list.adapter = adapter
+        (list.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
 
         viewModel.uiState.observe(viewLifecycleOwner) {
             if (it is AppointmentsUiState.Content) content = it
@@ -59,7 +64,7 @@ class AppointmentListFragment : Fragment() {
                 viewModel.clearResponseError()
             }
         }
-        list.requestFocus()
+        view.findViewById<View>(R.id.btn_screen_back).requestFocus()
     }
 
     override fun onResume() {
@@ -78,14 +83,12 @@ class AppointmentListFragment : Fragment() {
     }
 
     private fun showContent(state: AppointmentsUiState.Content) {
+        val restoreFocus = retry.hasFocus()
         stateText.visibility = View.GONE
         retry.visibility = View.GONE
         list.visibility = View.VISIBLE
-        list.adapter = DayGroupedAppointmentAdapter(
-            DayGroupedAppointmentAdapter.build(state.appointments, LocalDateTime.now()),
-            responseInProgressId,
-            ::respond
-        )
+        adapter.update(DayGroupedAppointmentAdapter.build(state.appointments, LocalDateTime.now()), responseInProgressId)
+        if (restoreFocus) view?.findViewById<View>(R.id.btn_screen_back)?.requestFocus()
     }
 
     private fun respond(appointment: com.example.tv_caller_app.domain.Appointment, response: AppointmentResponse) {
@@ -99,9 +102,14 @@ class AppointmentListFragment : Fragment() {
     }
 
     private fun showMessage(message: Int, allowRetry: Boolean) {
+        val restoreFocus = list.hasFocus() || retry.hasFocus()
         list.visibility = View.GONE
         stateText.visibility = View.VISIBLE
         stateText.setText(message)
         retry.visibility = if (allowRetry) View.VISIBLE else View.GONE
+        if (restoreFocus) {
+            if (allowRetry) retry.requestFocus()
+            else view?.findViewById<View>(R.id.btn_screen_back)?.requestFocus()
+        }
     }
 }

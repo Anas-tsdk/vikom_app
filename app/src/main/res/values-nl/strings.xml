@@ -443,4 +443,21 @@
     <plurals name="ai_medicine_count"><item quantity="one">%1$d medicijn</item><item quantity="other">%1$d medicijnen</item></plurals>
     <plurals name="ai_appointment_count"><item quantity="one">%1$d aankomende afspraak</item><item quantity="other">%1$d aankomende afspraken</item></plurals>
     <plurals name="ai_daily_task_count"><item quantity="one">%1$d dagelijkse taak</item><item quantity="other">%1$d dagelijkse taken</item></plurals>
+    <string name="search_contacts">Contacten zoeken</string>
+
+    <!-- Localized feedback for favorites and profile changes. -->
+    <string name="favorite_added_announcement">%1$s toegevoegd aan favorieten</string>
+    <string name="favorite_removed_announcement">%1$s verwijderd uit favorieten</string>
+    <string name="priority_added_announcement">%1$s ingesteld als prioriteit</string>
+    <string name="priority_removed_announcement">%1$s verwijderd uit prioriteiten</string>
+    <string name="contacts_load_failed">Kan contacten niet laden. Probeer het opnieuw.</string>
+    <string name="profile_load_failed">Kan je profiel niet laden</string>
+    <string name="username_empty">Voer een gebruikersnaam in</string>
+    <string name="username_too_short">De gebruikersnaam moet minstens 3 tekens bevatten</string>
+    <string name="username_updated">Gebruikersnaam bijgewerkt</string>
+    <string name="username_update_failed">Kan je gebruikersnaam niet bijwerken</string>
+    <string name="avatar_updated">Profielfoto bijgewerkt</string>
+    <string name="avatar_update_failed">Kan je profielfoto niet bijwerken</string>
+    <string name="avatar_removed">Profielfoto verwijderd</string>
+    <string name="avatar_remove_failed">Kan je profielfoto niet verwijderen</string>
 </resources>

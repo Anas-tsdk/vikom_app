@@ -103,7 +103,6 @@
                     android:imeOptions="actionSearch"
                     android:paddingStart="@dimen/padding_small"
                     android:paddingEnd="@dimen/padding_small"
-                    android:nextFocusDown="@id/contacts_list"
                     tools:ignore="VisualLintTextFieldSize,HardcodedText,Autofill,NestedWeights" />
 
                 <TextView
@@ -126,7 +125,7 @@
                 android:id="@+id/btn_search"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="Søk Kontakt"
+                android:text="@string/search_contacts"
                 android:textSize="@dimen/search_button_text"
                 android:textColor="@android:color/white"
                 android:gravity="center"

@@ -2,6 +2,8 @@ package com.example.tv_caller_app.ui.viewmodel
 
 import android.Manifest
 import android.app.Application
+import com.example.tv_caller_app.R
+import com.example.tv_caller_app.ui.util.localizedString
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
@@ -372,7 +374,7 @@ class ContactDetailViewModel(application: Application) : AndroidViewModel(applic
                     }
                     Log.d(TAG, "Favorite updated successfully")
                 } else {
-                    _errorMessage.value = "Failed to update favorite"
+                    _errorMessage.value = app.localizedString(R.string.update_favorite_failed)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error toggling favorite", e)
@@ -392,7 +394,7 @@ class ContactDetailViewModel(application: Application) : AndroidViewModel(applic
                     _isPriority.value = false
                 } else {
                     if (priorityRepository.isFull()) {
-                        _errorMessage.value = "Ingen ledige prioritetsplasser"
+                        _errorMessage.value = app.localizedString(R.string.priority_no_space)
                         return@launch
                     }
                     priorityRepository.assign(id)

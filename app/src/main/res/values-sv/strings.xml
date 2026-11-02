@@ -453,4 +453,21 @@
     <string name="daily_check_in_message">Tryck på knappen för att bekräfta att du mår bra.</string>
     <string name="daily_check_in_button">Jag mår bra</string>
     <string name="daily_check_in_error">Bekräftelsen kunde inte skickas. Kontrollera internetanslutningen och försök igen.</string>
+    <string name="search_contacts">Sök kontakter</string>
+
+    <!-- Localized feedback for favorites and profile changes. -->
+    <string name="favorite_added_announcement">%1$s har lagts till som favorit</string>
+    <string name="favorite_removed_announcement">%1$s har tagits bort från favoriter</string>
+    <string name="priority_added_announcement">%1$s har prioriterats</string>
+    <string name="priority_removed_announcement">%1$s är inte längre prioriterad</string>
+    <string name="contacts_load_failed">Kontakterna kunde inte hämtas. Försök igen.</string>
+    <string name="profile_load_failed">Profilen kunde inte hämtas</string>
+    <string name="username_empty">Ange ett användarnamn</string>
+    <string name="username_too_short">Användarnamnet måste innehålla minst 3 tecken</string>
+    <string name="username_updated">Användarnamnet har uppdaterats</string>
+    <string name="username_update_failed">Användarnamnet kunde inte uppdateras</string>
+    <string name="avatar_updated">Profilbilden har uppdaterats</string>
+    <string name="avatar_update_failed">Profilbilden kunde inte uppdateras</string>
+    <string name="avatar_removed">Profilbilden har tagits bort</string>
+    <string name="avatar_remove_failed">Profilbilden kunde inte tas bort</string>
 </resources>
