@@ -1,5 +1,17 @@
 # ViKom patient app
 
+## Firebase configuration
+
+The real `app/google-services.json` is intentionally not stored in Git. Download
+the Android configuration from Firebase Console and save it at
+`app/google-services.json`. The registered Android package must be
+`com.example.tv_caller_app`.
+
+Use `app/google-services.example.json` only as a description of the required
+shape. Never put production credentials or service-account JSON in the
+repository. Restrict the Firebase Android API key in Google Cloud Console to
+the Android package and the signing-certificate fingerprints used for the app.
+
 An Android patient/TV app with a simple ViKom home screen, appointments, contact management, and WebRTC audio/video calling. The Home screen uses the same visual palette as `vikom-web-main`; selecting **Call** opens the established quick-dial and in-call experience.
 
 **Platform:** Android TV (min SDK 25, target SDK 36) | **Language:** Kotlin 2.0.21 | **Architecture:** MVVM

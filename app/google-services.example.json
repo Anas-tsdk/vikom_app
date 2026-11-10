@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "167094906346",
-    "project_id": "vikom-fdf49",
-    "storage_bucket": "vikom-fdf49.firebasestorage.app"
+    "project_number": "YOUR_FIREBASE_PROJECT_NUMBER",
+    "project_id": "YOUR_FIREBASE_PROJECT_ID",
+    "storage_bucket": "YOUR_FIREBASE_STORAGE_BUCKET"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:167094906346:android:05c9ec72bb60a955831693",
+        "mobilesdk_app_id": "YOUR_FIREBASE_ANDROID_APP_ID",
         "android_client_info": {
           "package_name": "com.example.tv_caller_app"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDeSeUYBW5eiXMFb5mV9gR6zSkGCOLVqnY"
+          "current_key": "YOUR_RESTRICTED_FIREBASE_ANDROID_API_KEY"
         }
       ],
       "services": {
