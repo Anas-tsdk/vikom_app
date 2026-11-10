@@ -136,6 +136,12 @@ async function authenticatedActor(req: Request): Promise<string | null> {
   return await authenticatePortalJwt(token) ?? await authenticatePortalViaBackend(token);
 }
 
+function isBackendServiceRequest(req: Request): boolean {
+  const authorization = req.headers.get("authorization") ?? "";
+  const token = authorization.match(/^Bearer\s+(.+)$/i)?.[1] ?? "";
+  return Boolean(SUPABASE_SERVICE_ROLE_KEY) && token === SUPABASE_SERVICE_ROLE_KEY;
+}
+
 let cachedGoogleToken: { value: string; expiresAt: number } | null = null;
 
 function base64Url(value: Uint8Array | string): string {
@@ -219,19 +225,20 @@ async function sendPush(
   type: string,
   payload: JsonRecord,
   isMissedCall = false,
-): Promise<void> {
+): Promise<boolean> {
   const isMissed = type === "call_ended" && isMissedCall;
-  if (type !== "call_offer" && !isMissed) return;
+  const isAppointment = type === "appointment_event";
+  if (type !== "call_offer" && !isMissed && !isAppointment) return false;
   const projectId = Deno.env.get("FIREBASE_PROJECT_ID") ?? Deno.env.get("FCM_PROJECT_ID");
-  if (!projectId) return;
+  if (!projectId) return false;
   const { data: profile } = await admin
     .from("profiles")
     .select("fcm_token")
     .eq("id", recipientId)
     .maybeSingle();
-  if (!profile?.fcm_token) return;
+  if (!profile?.fcm_token) return false;
   const accessToken = await googleAccessToken();
-  if (!accessToken) return;
+  if (!accessToken) return false;
   let notificationPayload = payload;
   if (isMissed && (!payload.callerName || !payload.mediaType)) {
     const callId = String(payload.callId ?? "");
@@ -245,7 +252,15 @@ async function sendPush(
       .maybeSingle();
     notificationPayload = { ...(offer?.payload ?? {}), ...payload };
   }
-  const data = isMissed
+  const data = isAppointment
+    ? stringData({
+      ...payload,
+      type: payload.status === "Booked" && payload.patientResponseStatus === "Pending"
+        ? "appointment_invitation"
+        : "appointment_update",
+      target_user_id: recipientId,
+    })
+    : isMissed
     ? stringData({
       type: "missed_call",
       target_user_id: recipientId,
@@ -270,12 +285,19 @@ async function sendPush(
         message: {
           token: profile.fcm_token,
           data,
-          android: { priority: "high", ttl: isMissed ? "604800s" : "60s" },
+          android: {
+            priority: "high",
+            ttl: isAppointment ? "2419200s" : isMissed ? "604800s" : "60s",
+          },
         },
       }),
     },
   );
-  if (!response.ok) throw new Error(`FCM send failed (${response.status})`);
+  if (!response.ok) {
+    const detail = (await response.text()).slice(0, 800);
+    throw new Error(`FCM send failed for project ${projectId} (${response.status}): ${detail}`);
+  }
+  return true;
 }
 
 async function turnCredentials(): Promise<unknown> {
@@ -298,10 +320,31 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(req) });
   if (req.method !== "POST") return jsonResponse(req, { error: "Method not allowed" }, 405);
   try {
-    const actorId = await authenticatedActor(req);
+    const backendServiceRequest = isBackendServiceRequest(req);
+    const actorId = backendServiceRequest ? "backend-service" : await authenticatedActor(req);
     if (!actorId) return jsonResponse(req, { error: "Unauthorized" }, 401);
     const body = await req.json() as JsonRecord;
     const action = String(body.action ?? "");
+
+    if (action === "notify_appointment") {
+      if (!backendServiceRequest) return jsonResponse(req, { error: "Forbidden" }, 403);
+      const recipientId = String(body.targetUserId ?? "").trim();
+      const payload = body.payload && typeof body.payload === "object" && !Array.isArray(body.payload)
+        ? body.payload as JsonRecord
+        : {};
+      const appointmentId = Number(payload.appointmentId ?? 0);
+      if (recipientId.length < 8 || recipientId.length > 128 || !Number.isSafeInteger(appointmentId) || appointmentId <= 0) {
+        return jsonResponse(req, { error: "Invalid appointment notification" }, 400);
+      }
+      try {
+        const notified = await sendPush(recipientId, "appointment_event", payload);
+        return jsonResponse(req, { notified });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Appointment push failed";
+        console.error(message);
+        return jsonResponse(req, { error: message }, 502);
+      }
+    }
 
     if (action === "turn") return jsonResponse(req, await turnCredentials());
 

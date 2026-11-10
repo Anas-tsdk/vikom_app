@@ -102,4 +102,73 @@
     <dimen name="chip_padding_horizontal">14dp</dimen>
     <dimen name="chip_padding_vertical">6dp</dimen>
     <dimen name="chip_gap">10dp</dimen>
+
+    <!--
+        Defaults for the TV-specific scale tokens. Television resource folders
+        override these values, while the defaults keep direct references safe
+        on every Android configuration (including tests and previews).
+    -->
+    <dimen name="tv_text_title">32sp</dimen>
+    <dimen name="tv_text_heading">26sp</dimen>
+    <dimen name="tv_text_primary">18sp</dimen>
+    <dimen name="tv_text_caption">14sp</dimen>
+    <dimen name="tv_text_small">12sp</dimen>
+    <dimen name="tv_text_caller_name">36sp</dimen>
+    <dimen name="tv_text_call_timer">32sp</dimen>
+    <dimen name="tv_text_call_status">18sp</dimen>
+    <dimen name="tv_button_call_action">80dp</dimen>
+    <dimen name="tv_button_in_call">64dp</dimen>
+    <dimen name="tv_button_height">48dp</dimen>
+    <dimen name="tv_list_item_height">48dp</dimen>
+    <dimen name="tv_tab_height">44dp</dimen>
+    <dimen name="tv_padding_standard">16dp</dimen>
+    <dimen name="tv_padding_large">24dp</dimen>
+    <dimen name="tv_padding_xlarge">32dp</dimen>
+    <dimen name="tv_header_top_margin">22dp</dimen>
+    <dimen name="tv_logo_width">160dp</dimen>
+    <dimen name="tv_logo_height">40dp</dimen>
+    <dimen name="tv_header_icon_size">32dp</dimen>
+    <dimen name="tv_header_welcome_text">15sp</dimen>
+    <dimen name="tv_input_max_width">400dp</dimen>
+    <dimen name="tv_dialog_width">420dp</dimen>
+    <dimen name="tv_splash_logo_width">360dp</dimen>
+    <dimen name="tv_splash_logo_height">100dp</dimen>
+    <dimen name="tv_clock_time_size">18sp</dimen>
+    <dimen name="tv_clock_date_size">12sp</dimen>
+    <dimen name="tv_divider_width">400dp</dimen>
+    <dimen name="tv_call_avatar_size">140dp</dimen>
+    <dimen name="tv_call_button_padding">18dp</dimen>
+    <dimen name="tv_in_call_button_padding">14dp</dimen>
+    <dimen name="tv_call_button_spacing">32dp</dimen>
+    <dimen name="tv_contact_detail_name">34sp</dimen>
+    <dimen name="tv_contact_detail_nickname">22sp</dimen>
+    <dimen name="tv_contact_detail_id">20sp</dimen>
+    <dimen name="tv_contact_detail_status">16sp</dimen>
+    <dimen name="tv_contact_detail_icon">64sp</dimen>
+    <dimen name="tv_dialog_title_size">24sp</dimen>
+    <dimen name="tv_dialog_button_height">52dp</dimen>
+    <dimen name="tv_dialog_icon_size">40sp</dimen>
+    <dimen name="tv_dialog_padding_horizontal">40dp</dimen>
+    <dimen name="tv_dialog_padding_top">32dp</dimen>
+    <dimen name="tv_dialog_padding_bottom">36dp</dimen>
+    <dimen name="tv_auth_logo_width">280dp</dimen>
+    <dimen name="tv_auth_logo_height">80dp</dimen>
+    <dimen name="tv_auth_padding">40dp</dimen>
+    <dimen name="tv_tab_text_size">18sp</dimen>
+    <dimen name="tv_search_bar_height">44dp</dimen>
+    <dimen name="tv_search_button_text">14sp</dimen>
+    <dimen name="tv_favorite_star_size">32sp</dimen>
+    <dimen name="tv_avatar_size_contact_card">42dp</dimen>
+    <dimen name="tv_text_contact_card_name">18sp</dimen>
+    <dimen name="tv_text_contact_card_subtitle">14sp</dimen>
+    <dimen name="tv_text_body">18sp</dimen>
+    <dimen name="tv_hero_time_size">44sp</dimen>
+    <dimen name="tv_day_anchor_width">108dp</dimen>
+    <dimen name="tv_day_anchor_number">26sp</dimen>
+    <dimen name="tv_list_time_size">22sp</dimen>
+    <dimen name="tv_home_tile_icon">52dp</dimen>
+    <dimen name="tv_care_team_avatar">56dp</dimen>
+    <dimen name="tv_chip_padding_horizontal">14dp</dimen>
+    <dimen name="tv_chip_padding_vertical">6dp</dimen>
+    <dimen name="tv_chip_gap">10dp</dimen>
 </resources>
